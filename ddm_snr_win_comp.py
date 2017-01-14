@@ -48,9 +48,6 @@ ph3_errs=[]
 
 for snr in snrs:
     
-    # Noise gain corresponding to SNR
-    g_no=np.sqrt(10.**(snr/20.))
-    
     # Amplitude part
     a0_err=0.
     a1_err=0.
@@ -80,14 +77,22 @@ for snr in snrs:
         arg_im=np.polyval([ph2,ph1,ph0],t)
         # Analytic signal
         x=np.exp(arg_re+1j*arg_im)
+        # Power of analytic signal
+        p_x=np.sum(x**2.)/float(W_l)
         # Compute DFT without noise to find maximum
         X=np.fft.fft(x*w)
         kma0=np.argmax(np.abs(X))
+        # Power of noise
+        p_no=p_x*(10.**(snr/10.))
+        # Gain to synthesize noise of desired power
+        g_no=np.sqrt(p_no)
         # Add noise
         y=x+g_no*np.random.standard_normal(int(W_l))
         # Estimate parameters
         alpha=ddm.ddm_p2_1_3(y,w,dw,kma0)
         if (alpha == None):
+            # If there was a problem solving the system of equations, just
+            # ignore and try again
             continue
         # Record errors
         a0_=np.real(alpha[0][0])
@@ -111,5 +116,5 @@ for snr in snrs:
     ph1_errs.append(ph1_err/float(N_eval))
     ph2_errs.append(ph2_err/float(N_eval))
 
-plt.plot(snrs,a0_errs)
+plt.plot(snrs,ph1_errs)
 plt.show()
