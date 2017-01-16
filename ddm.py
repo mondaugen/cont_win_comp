@@ -2,7 +2,7 @@
 
 import numpy as np
 
-def w_dw_sum_cos(M,a='hanning'):
+def w_dw_sum_cos(M,a='hanning',norm=False):
     """
     Construct sum of cosine windows, based on type or coefficients specified in
     a.
@@ -15,6 +15,8 @@ def w_dw_sum_cos(M,a='hanning'):
             'hanning'
             'c1-blackman-4'
         Otherwise can specify the coefficients of a window.
+    norm:
+        If norm is true, multiply by constant so that ||w||^2 is 1
 
     Returns:
     w,dw
@@ -43,10 +45,16 @@ def w_dw_sum_cos(M,a='hanning'):
     w_=((c*np.power(-1,np.arange(len(c))))[:,np.newaxis]
             *np.cos(np.pi*2./M*np.outer(np.arange(len(c)),m)))
     w=np.sum(w_,0)
+    C=1
+    if (norm):
+        C=np.sum(w)
+    w/=C
+
     dw_=((2.*np.pi/M*c[1:]*np.arange(1,len(c))
             *np.power(-1,1+np.arange(1,len(c))))[:,np.newaxis]
         *np.sin(np.pi*2./M*np.outer(np.arange(1,len(c)),m)))
     dw=np.sum(dw_,0)
+    dw/=C
     return (w,dw)
 
 def ddm_p2_1_3(x,w,dw,kma0):
@@ -78,6 +86,10 @@ def ddm_p2_1_3(x,w,dw,kma0):
     Xdw_=np.fft.fft(x0*dw)
     Xdw=Xp1w*(-2.*np.pi*1j*nx0/N_w)+Xdw_
     result=[]
+    if (kma0 == 0) or (kma0 == (N_w-1)):
+        return None
+    kma0__1=(kma0-1)%N_w
+    kma0_1=(kma0+1)%N_w
     A=np.c_[
             np.r_[
                 Xp1w[(kma0)-1:(kma0+2)],
@@ -96,6 +108,7 @@ def ddm_p2_1_3(x,w,dw,kma0):
         gam=np.exp(a[0]*nx0+a[1]*nx0**2.)
         a0=(np.log(np.inner(x0,np.conj(gam)))
             -np.log(np.inner(gam,np.conj(gam))))
+#        a0=(np.log(Xp1w[kma0])-np.log(np.fft.fft(gam*w)[kma0]))
         result.append(np.vstack((a0,a)))
     except ValueError:
         return None
