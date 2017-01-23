@@ -1,6 +1,7 @@
 # The distribution derivative method and windows it requires
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 def w_dw_sum_cos(M,a='hanning',norm=False):
     """
@@ -113,3 +114,61 @@ def ddm_p2_1_3(x,w,dw,kma0):
     except ValueError:
         return None
     return result
+
+def plot_sig_dft_c(x,show=True):
+    """
+    Plot the DFT of a signal so that frequency 0 is in the middle of the plot.
+    """
+    if (len(x) % 2) != 0:
+        raise ValueError('Length must be even')
+    X=np.fft.fft(x)
+    n=np.arange(len(x))
+    X=np.r_[X[len(X)/2:],X[:len(X)/2]]
+    n=np.r_[n[len(n)/2:]-len(n),n[:len(n)/2]]
+    plt.plot(n,20*np.log10(np.abs(X)))
+    if (show):
+        plt.show()
+    return (n,X)
+
+class chirp_p2:
+    def __init__(self,a0=0,a1=0,a2=0,b0=0,b1=0,b2=0,l=16000*(32./1000.),Fs=16000):
+        self.a0=a0
+        self.a1=a1
+        self.a2=a2
+        self.b0=b0
+        self.b1=b1
+        self.b2=b2
+        t=np.arange(l)/float(Fs)
+        arg_re=np.polyval([self.a2,self.a1,self.a0],t)
+        arg_im=np.polyval([self.b2,self.b1,self.b0],t)
+        self.x=np.exp(arg_re+1j*arg_im)
+    def X(self,w):
+        """
+        Get the frequency domain representation of the chirp by performing the
+        DFT.
+
+        w:
+            a window to window the signal with before transforming.
+        """
+        if not (len(w) == len(self.x)):
+            raise ValueError('Window must be same length as signal.')
+        return np.fft.fft(self.x*w)
+    def p_x(self):
+        # Power of analytic signal
+        return np.sum(self.x**2.)/float(len(self.x))
+
+class chirp_p2_creator:
+    def __init__(self,l_ms=32,Fs=16000):
+        self.l_ms=32
+        self.Fs=16000
+        self.l=Fs*(l_ms/1000.)
+    def create_chirp(self,a0=0,a1=0,a2=0,b0=0,b1=0,b2=0):
+        return chirp_p2(a0,a1,a2,b0,b1,b2,self.l,self.Fs)
+    def create_random_chirp(self,a0_r,a1_r,a2_r,b0_r,b1_r,b2_r):
+        a0=np.random.uniform(a0_r[0],a0_r[1])
+        a1=np.random.uniform(a1_r[0],a1_r[1])
+        a2=np.random.uniform(a2_r[0],a2_r[1])
+        b0=np.random.uniform(b0_r[0],b0_r[1])
+        b1=np.random.uniform(b1_r[0],b1_r[1])
+        b2=np.random.uniform(b2_r[0],b2_r[1])
+        return create_chirp(a0,a1,a2,b0,b1,b2)
