@@ -86,7 +86,7 @@ for k in errs.keys():
             # Analytic signal
             x=np.exp(arg_re+1j*arg_im)
             # Power of analytic signal
-            p_x=np.sum(x**2.)/float(W_l)
+            p_x=np.sum(x*np.conj(x))/float(W_l)
             # Compute DFT without noise to find maximum
             X=np.fft.fft(x*w)
             kma0=np.argmax(np.abs(X))
