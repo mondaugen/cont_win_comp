@@ -82,31 +82,34 @@ def ddm_p2_1_3(x,w,dw,kma0):
     N_w=len(w)
     nx0=np.arange(N_w)
     x0=x[nx0]
+    #kma0__1=float((kma0-1)%N_w)
+    #kma0_1=float((kma0+1)%N_w)
+    kma0__1=float((kma0-1))
+    kma0_1=float((kma0+1))
+    kma0=float(kma0)
     Xp1w=np.r_[
-            np.sum(w*x0*np.exp(-2.*np.pi*1j*nx0*(kma0-1)/N_w)),
+            np.sum(w*x0*np.exp(-2.*np.pi*1j*nx0*kma0__1/N_w)),
             np.sum(w*x0*np.exp(-2.*np.pi*1j*nx0*kma0/N_w)),
-            np.sum(w*x0*np.exp(-2.*np.pi*1j*nx0*(kma0+1)/N_w))
+            np.sum(w*x0*np.exp(-2.*np.pi*1j*nx0*kma0_1/N_w))
             ]
     Xp2w=np.r_[
-            np.sum(w*2.*nx0*x0*np.exp(-2.*np.pi*1j*nx0*(kma0-1)/N_w)),
+            np.sum(w*2.*nx0*x0*np.exp(-2.*np.pi*1j*nx0*kma0__1/N_w)),
             np.sum(w*2.*nx0*x0*np.exp(-2.*np.pi*1j*nx0*kma0/N_w)),
-            np.sum(w*2.*nx0*x0*np.exp(-2.*np.pi*1j*nx0*(kma0+1)/N_w))
+            np.sum(w*2.*nx0*x0*np.exp(-2.*np.pi*1j*nx0*kma0_1/N_w))
             ]
     Xdw_=np.r_[
-            np.sum(dw*x0*np.exp(-2.*np.pi*1j*nx0*(kma0-1)/N_w)),
+            np.sum(dw*x0*np.exp(-2.*np.pi*1j*nx0*kma0__1/N_w)),
             np.sum(dw*x0*np.exp(-2.*np.pi*1j*nx0*kma0/N_w)),
-            np.sum(dw*x0*np.exp(-2.*np.pi*1j*nx0*(kma0+1)/N_w))
+            np.sum(dw*x0*np.exp(-2.*np.pi*1j*nx0*kma0_1/N_w))
             ]
     #Xp1w=np.fft.fft(x0*w)
     #Xp2w=np.fft.fft(2.*nx0*x0*w)
     #Xdw_=np.fft.fft(x0*dw)
 #    Xdw=Xp1w*(-2.*np.pi*1j*nx0/N_w)+Xdw_
-    Xdw=Xp1w*(-2.*np.pi*1j*np.r_[kma0-1,kma0,kma0+1]/N_w)+Xdw_
+    Xdw=Xp1w*(-2.*np.pi*1j*np.r_[kma0__1,kma0,kma0_1]/float(N_w))+Xdw_
     result=[]
     #if (kma0 == 0) or (kma0 == (N_w-1)):
     #    return None
-    kma0__1=(kma0-1)%N_w
-    kma0_1=(kma0+1)%N_w
     A=np.c_[
 #            np.r_[
 ##                Xp1w[(kma0)-1:(kma0+2)],

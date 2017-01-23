@@ -121,8 +121,7 @@ for k in errs.keys():
             a2_err+=np.abs(a2-a2_)
             # Find minimum distance on circle
             ph0_err+=min([(ph0-ph0_)%(2.*np.pi),(ph0_-ph0)%(2.*np.pi)])
-            # We do not allow negative frequencies (TODO: is this okay?)
-            ph1_err+=np.abs(ph1-np.abs(ph1_))
+            ph1_err+=np.abs(min([(ph1-ph1_)%(2.*np.pi),(ph1_-ph1)%(2.*np.pi)]))
             ph2_err+=np.abs(ph2-ph2_)
             n += 1
 

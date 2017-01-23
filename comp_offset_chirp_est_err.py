@@ -14,7 +14,7 @@ W_l_ms=32
 
 # prepare chirps
 
-chirps=ddm.build_offset_chirps(N_chirps=2,
+chirps=ddm.build_offset_chirps(N_chirps=4,
                                # Sample rate (Hz)
                                F_s=F_s,
                                # Window length (ms)
@@ -25,7 +25,7 @@ wins=['hann','c1-nuttall-4','c1-blackman-4']
 line_stys=['solid','dotted','dashed']
 sr_min=-60
 srs=np.arange(sr_min,0,10)
-n_diffs=64
+n_diffs=128
 diffs=xrange(n_diffs)
 errs=dict()
 for w in wins:
