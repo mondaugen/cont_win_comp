@@ -307,12 +307,16 @@ def p2_1_3_est(x,ch,kma0,w_name='hann',F_s=16000):
     while (b0_ < -np.pi):
         b0_ += 2.*np.pi
     b1_=np.imag(alpha[0][1])*F_s
+    while (b1_ > F_s*np.pi):
+        b1_ -= F_s*np.pi
+    while (b1_ < 0):
+        b1_ += F_s*np.pi
     b2_=np.imag(alpha[0][2])*(F_s**2.)
     a0_err=np.abs(ch.a0-a0_)
     a1_err=np.abs(ch.a1-a1_)
     a2_err=np.abs(ch.a2-a2_)
     # Find minimum distance on circle
     b0_err=min([(ch.b0-b0_)%(2.*np.pi),(b0_-ch.b0)%(2.*np.pi)])
-    b1_err=np.abs(ch.b1-b1_)
+    b1_err=min([(ch.b1-b1_)%(np.pi*F_s),(b1_-ch.b1)%(np.pi*F_s)])
     b2_err=np.abs(ch.b2-b2_)
     return (a0_err,a1_err,a2_err,b0_err,b1_err,b2_err)

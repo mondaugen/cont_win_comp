@@ -115,13 +115,17 @@ for k in errs.keys():
             while (ph0 < ph0_r[0]):
                 ph0_ += 2.*np.pi
             ph1_=np.imag(alpha[0][1])*F_s
+            while (ph1_ > ph1_r[1]):
+                ph1_ -= np.pi*F_s
+            while (ph1_ < ph1_r[0]):
+                ph1_ += np.pi*F_s
             ph2_=np.imag(alpha[0][2])*(F_s**2.)
             a0_err+=np.abs(a0-a0_)
             a1_err+=np.abs(a1-a1_)
             a2_err+=np.abs(a2-a2_)
             # Find minimum distance on circle
             ph0_err+=min([(ph0-ph0_)%(2.*np.pi),(ph0_-ph0)%(2.*np.pi)])
-            ph1_err+=np.abs(min([(ph1-ph1_)%(2.*np.pi),(ph1_-ph1)%(2.*np.pi)]))
+            ph1_err+=min([(ph1-ph1_)%(np.pi*F_s),(ph1_-ph1)%(np.pi*F_s)])
             ph2_err+=np.abs(ph2-ph2_)
             n += 1
 
