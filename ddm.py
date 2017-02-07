@@ -1,7 +1,27 @@
 # The distribution derivative method and windows it requires
 
 import numpy as np
+import numpy.linalg as LA
 import matplotlib.pyplot as plt
+
+def eig_pow_method(A,d=1.e-6,maxiters=1000):
+    """
+    Compute the greatest eigenvalue of A and its corresponding eigenvector using
+    the power method. Stops when maxiters reached or difference between last
+    greatest absolute value and current greatest absolute value less than d.
+    """
+    N=A.shape[1]
+    b=np.zeros(N,dtype='complex')
+    b[0]=1.
+    b/=LA.norm(b)
+    lst_max=np.max(np.abs(b))
+    for i in xrange(maxiters):
+        b=np.inner(A,b)
+        b/=LA.norm(b)
+        if np.abs(lst_max - np.max(np.abs(b))) < d:
+            break
+        lst_max=np.max(np.abs(b))
+    return (np.vdot(b,np.inner(A,b)),b)
 
 def w_dw_sum_cos(M,a='hanning',norm=False):
     """
@@ -36,6 +56,12 @@ def w_dw_sum_cos(M,a='hanning',norm=False):
             c=np.r_[0.40897,0.5,0.09103]
         elif (a=='c1-nuttall-4'):
             c=np.r_[0.355768,0.487396,0.144232,0.012604]
+        elif (a=='naive-hamming'):
+            # Called naive because this will not include the derivative of the
+            # rectangular window, which is non-zero at the window edges
+            c=np.r_[0.54,0.46]
+        elif (a=='naive-min-blackman-4'):
+            c=np.r_[0.35875,0.48829,0.14128,0.01168]
     else:
         try:
             _it=iter(a)
@@ -50,7 +76,6 @@ def w_dw_sum_cos(M,a='hanning',norm=False):
     if (norm):
         C=np.sum(w)
     w/=C
-
     dw_=((2.*np.pi/M*c[1:]*np.arange(1,len(c))
             *np.power(-1,1+np.arange(1,len(c))))[:,np.newaxis]
         *np.sin(np.pi*2./M*np.outer(np.arange(1,len(c)),m)))

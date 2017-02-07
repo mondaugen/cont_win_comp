@@ -111,7 +111,203 @@ TODO
 
 \section{Introduction}
 \label{sec:intro}
-This template can be found on the conference website.
+%Additive synthesis using a sum of sinusoids plus noise is a powerful model for
+%representing audio, allowing for the easy implementation of many manipulations
+%such as time-stretching and transposition. In its most basic form, peaks in the
+%short-time spectrum are identified as representing sinusoids and connected based
+%on some criteria. As the phase evolution of the sinusoid is assumed linear over
+%the analysis frame, only the phase and frequency of the sinusoids at these
+%analysis points are used to fit a plausible phase function. Recently, there has
+%been interest in using higher order phase functions as the estimation of their
+%parameters has been made possible by a new set of techniques of only moderate
+%computational complexity using signal derivatives. Theoretically, the estimation
+%of the parameters of a polynomial phase function of arbitrary order make it
+%possible to approximate any analytical phase function to desired precision.
+%Empirically, the use of higher order phase models allow for higher quality
+%manipulations.
+%
+%The technique we will consider in this paper is the Distribution Derivative
+%Method for its convenience: the technique does not require computing derivatives
+%of the signal to be analysed. It does, however, require a
+%$p$ times differentiable analysis window where $p+1$ is the order of the
+%phase polynomial to be estimated.
+%
+%In the few reports on the technique, the window used is the Hann window. This
+%window is many-times differentiable but 
+%
+%Complex polynomial phase models whose estimation is 
+\section{The polynomial phase sinusoid}
+Recently techniques estimating the parameters of polynomial phase sinusoids,
+i.e., signals of the form
+\[
+    x(t) = \exp(a_0 + \sum_{j=1}^{Q} a_j t^j)
+\]
+have been developed. Many equivalent techniques have been developed for
+estimating the $a_j$ have been developed. In this paper we compare with the
+Distribution Derivative Method (DDM) only, without loss of generality.
+
+\section{The estimation of $a_j$}
+We will now show briefly how the DDM can be used to estimate the $a_j$. Based on
+the theory of distributions (Laurent Schwartz), the DDM
+makes use of ``test
+functions'' or atoms $\psi$. These atoms must be once differentiable with respect to
+$t$ and be non-zero only on a finite interval $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$. First, we define
+%
+\begin{equation}
+    \label{eq:ddm:inner:prod:def}
+    \left\langle x , \psi \right\rangle = 
+    \int_{-\infty}^{\infty}x(t)\overline{\psi}(t)dt
+\]
+%
+and the operator 
+%
+\[
+\mathcal{T}^{\alpha} : (\mathcal{T}^{\alpha}x)(t) = t^{\alpha}x(t)
+\]
+%
+Consider the weighted signal
+%
+\[
+    f(t) = x(t) \overline{\psi}(t)
+\]
+%
+differentiating with respect to $t$ we obtain
+%
+\begin{equation}
+    \label{eq:ddm:weighted:sig:derivative}
+    \frac{df(t)}{dt} = 
+    \frac{dx}{dt}(t)\overline{\psi}(t)
+    + x(t)\frac{d\overline{\psi}}{dt}(t)
+    = \left( \sum_{j=1}^{Q} j a_j t^{j-1} \right) x(t)\overline{\psi}(t)
+    + x(t)\frac{d\overline{\psi}}{dt}(t)
+\end{equation}
+%
+Because $\psi$ is zero outside of the interval $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$, integrating
+$\frac{df(t)}{dt}$ we obtain
+%
+\[
+    \sum_{j=1}^{Q} j a_j \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} t^{j-1} x(t) \overline{\psi}(t) dt
+    + \left\langle x, \frac{d\overline{\psi}}{dt} \right\rangle = 0
+\]
+%
+or, using the operator $\mathcal{T}^{\alpha}$,
+%
+\[ 
+    \sum_{j=1}^{Q} j a_j 
+    \left\langle \mathcal{T}^{j-1} x , \overline{\psi} \right\rangle
+    = -\left\langle x, \frac{d\overline{\psi}}{dt} \right\rangle
+\]
+%
+
+From this we can see that to estimate the coefficients $a_j$, $ 1 \leq q \leq Q
+$ we simply need $R$ atoms with $R \geq Q$ to solve the linear system of
+equations
+\begin{equation}
+    \label{eq:ddmsyseq}
+    \sum_{j=1}^{Q} j a_j 
+    \left\langle \mathcal{T}^{j-1} x , \overline{\psi}_{r} \right\rangle
+    = -\left\langle x, \frac{d\overline{\psi}_{r}}{dn} \right\rangle
+\end{equation}
+for $1 \leq r \leq R$.
+
+\section{The estimation of the $a_{i,j}$ of $P$ components}
+
+Although this technique can be exteded to describe a single
+sinusoid of arbitrary complexity simply by increasing $Q$, it is still of
+interest to consider a signals featuring a sum of such components, i.e.,
+%
+\[
+    s(t) = \sum_( \exp(a_{i,0} + \sum_{j=1}^{Q} a_{i,j} t^j) )
+\]
+%
+In situations where multiple signal sources are known to exist (e.g., recordings
+of multiple speakers or performers) such a model is plausible.
+
+We examine how this mixture model influences the estimation of the $a_{i,j}$.
+Consider a mixture of $P$ components
+%
+\[
+    s(t) = \sum_{i=1}{P} x_{i}(t)
+\]
+%
+with
+%
+\[
+    x_{i}(t) = \exp(a_{i,0} + \sum_{j=1}^{Q} a_{i,j} t^j)
+\]
+%
+If we define the weighted signal sum
+%
+\[
+    g(t) = \sum_{i=1}{P} x_{i}(t) \overline{\psi}(t) = \sum_{i=1}{P} f_{i}(t)
+\]
+%
+and substitute $g$ for $f$ in \ref{eq:ddm:weighted:sig:derivative} we obtain
+%
+\[
+    \sum_{i=1}{P} \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} \frac{df_{i}}{dt}(t) =
+    0 = 
+    \sum_{i=1}{P}
+    \sum_{j=1}^{Q} j a_{i,j} 
+    \left\langle \mathcal{T}^{j-1} x_i , \overline{\psi} \right\rangle
+     + \left\langle x_i, \frac{d\overline{\psi}}{dt} \right\rangle
+\]
+%
+From this we see if $\left\langle \mathcal{T}^{j-1} x_i , \overline{\psi}_{r}
+\right\rangle$ is small for all but $i = i^{\ast}$ and a subset of $R$ atoms, we
+can simply estimate the parameters $a_{i^{\ast},j}$ using
+\[
+    \sum_{j=1}^{Q} j a_{i,j} 
+    \left\langle \mathcal{T}^{j-1} x_i , \overline{\psi}_{r} \right\rangle
+    = -\left\langle x_i, \frac{d\overline{\psi}_{r}}{dn} \right\rangle
+\]
+for $1 \leq r \leq R$.
+
+\section{Designing the \psi_{r}}
+
+In practice, an approximation of \ref{eq:ddm:inner:prod:def} is evaluated using
+the discrete Fourier transform (DFT) on a signal $x$ that is properly sampled
+and so can be evaluated at a finite number of points $nT$ with $n \in [0,N-1]$ and
+$T$ the sample period in seconds. In this way, the atoms $\psi_{\omega}(t)$ chosen
+are the products of the elements of the Fourier basis and an appropriately
+chosen window $w$ that is once differentiable and finite, i.e.,
+%
+\[
+    \psi_{\omega}(t) = w(t) \exp(-\sqrt{-1} \omega t)
+\]
+%
+Defining $N = \frac{L_{t}}{T}$ and $\omega = 2
+\pi \frac{r}{N}$, the approximate
+inner product is then
+%
+\[
+    \left\langle x , \psi_{\omega} \right\rangle \approx 
+    \frac{1}{N} \sum_{n=0}{N-1} x(Tn) w(Tn) exp(-2 \pi j r \frac{n}{N}) 
+\]
+%
+i.e., the definition of the DFT.%
+\footnote{%
+    Notice however that this is an approximation of the inner product and should
+    not be interpreted as yielding the Fourier series coefficients of a properly
+    sampled signal $x$ periodic in $\frac{L_{t}}$. This means that other
+    evaluations of the inner product that yield more accurate results are
+    possible. For example, the analytic solution is possible if $x$ is assumed
+    zero outside of $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$ (the $\psi$ are in
+    general analytic).  In this case the samples of $x$ are convolved with the
+    appropriate interpolating sinc functions and the integral of this function's
+    product with $\psi$ is evaluated.
+}%
+
+The DFT is readily interpreted as a bank of bandpass filters centred at
+normalized frequencies $\frac{r}{N}$ and with frequency response described by
+the Fourier transform of modulated $w$. Therefore choosing $\psi$ amounts to a
+filter design problem under the constraints that the impulse response of the
+filter must be differentiable in $t$ and finite.
+
+In all the publications these authors reviewed on the DDM, the window used was
+the Hann window.
+Nuttall has designed windows with greater out-of-band rejection (lower
+side-lobes) than the canonical Hann window which are still differentiable.
 
 \subsection{Figures}
 \label{ssec:figures}
