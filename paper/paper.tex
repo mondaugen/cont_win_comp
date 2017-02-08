@@ -157,7 +157,7 @@ $t$ and be non-zero only on a finite interval $[-\frac{L_{t}}{2},\frac{L_{t}}{2}
     \label{eq:ddm:inner:prod:def}
     \left\langle x , \psi \right\rangle = 
     \int_{-\infty}^{\infty}x(t)\overline{\psi}(t)dt
-\]
+\end{equation}
 %
 and the operator 
 %
@@ -173,22 +173,23 @@ Consider the weighted signal
 %
 differentiating with respect to $t$ we obtain
 %
-\begin{equation}
+\begin{multline}
     \label{eq:ddm:weighted:sig:derivative}
     \frac{df(t)}{dt} = 
     \frac{dx}{dt}(t)\overline{\psi}(t)
-    + x(t)\frac{d\overline{\psi}}{dt}(t)
+    + x(t)\frac{d\overline{\psi}}{dt}(t) \\
     = \left( \sum_{j=1}^{Q} j a_j t^{j-1} \right) x(t)\overline{\psi}(t)
     + x(t)\frac{d\overline{\psi}}{dt}(t)
-\end{equation}
+\end{multline}
 %
 Because $\psi$ is zero outside of the interval $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$, integrating
 $\frac{df(t)}{dt}$ we obtain
 %
-\[
-    \sum_{j=1}^{Q} j a_j \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} t^{j-1} x(t) \overline{\psi}(t) dt
+\begin{multline*}
+    \int_{-\infty}^{\infty}\frac{df(t)}{dt}dt \\
+    = \sum_{j=1}^{Q} j a_j \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} t^{j-1} x(t) \overline{\psi}(t) dt
     + \left\langle x, \frac{d\overline{\psi}}{dt} \right\rangle = 0
-\]
+\end{multline*}
 %
 or, using the operator $\mathcal{T}^{\alpha}$,
 %
@@ -214,20 +215,10 @@ for $1 \leq r \leq R$.
 
 Although this technique can be exteded to describe a single
 sinusoid of arbitrary complexity simply by increasing $Q$, it is still of
-interest to consider a signals featuring a sum of such components, i.e.,
+interest to consider a signals featuring a sum of $P$ such components, i.e.,
 %
 \[
-    s(t) = \sum_( \exp(a_{i,0} + \sum_{j=1}^{Q} a_{i,j} t^j) )
-\]
-%
-In situations where multiple signal sources are known to exist (e.g., recordings
-of multiple speakers or performers) such a model is plausible.
-
-We examine how this mixture model influences the estimation of the $a_{i,j}$.
-Consider a mixture of $P$ components
-%
-\[
-    s(t) = \sum_{i=1}{P} x_{i}(t)
+    s(t) = \sum_{i=1}^{P} x_{i}(t)
 \]
 %
 with
@@ -236,25 +227,32 @@ with
     x_{i}(t) = \exp(a_{i,0} + \sum_{j=1}^{Q} a_{i,j} t^j)
 \]
 %
+In situations where multiple signal sources are known to exist (e.g., recordings
+of multiple speakers or performers) such a model is plausible.
+
+We examine how this mixture model influences the estimation of the $a_{i,j}$.
+Consider a mixture of $P$ components
 If we define the weighted signal sum
 %
 \[
-    g(t) = \sum_{i=1}{P} x_{i}(t) \overline{\psi}(t) = \sum_{i=1}{P} f_{i}(t)
+    g(t) = \sum_{i=1}^{P} x_{i}(t) \overline{\psi}(t) = \sum_{i=1}^{P} f_{i}(t)
 \]
 %
 and substitute $g$ for $f$ in \ref{eq:ddm:weighted:sig:derivative} we obtain
 %
-\[
+\begin{multline}
     \sum_{i=1}{P} \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} \frac{df_{i}}{dt}(t) =
-    0 = 
-    \sum_{i=1}{P}
+    0
+    \\ = 
+    \sum_{i=1}^{P}
     \sum_{j=1}^{Q} j a_{i,j} 
     \left\langle \mathcal{T}^{j-1} x_i , \overline{\psi} \right\rangle
      + \left\langle x_i, \frac{d\overline{\psi}}{dt} \right\rangle
-\]
+\end{multline}
 %
 From this we see if $\left\langle \mathcal{T}^{j-1} x_i , \overline{\psi}_{r}
-\right\rangle$ is small for all but $i = i^{\ast}$ and a subset of $R$ atoms, we
+\right\rangle$ and $\left\langle x_i, \frac{d\overline{\psi_{r}}}{dt} \right\rangle$
+is small for all but $i = i^{\ast}$ and a subset of $R$ atoms, we
 can simply estimate the parameters $a_{i^{\ast},j}$ using
 \[
     \sum_{j=1}^{Q} j a_{i,j} 
@@ -263,7 +261,7 @@ can simply estimate the parameters $a_{i^{\ast},j}$ using
 \]
 for $1 \leq r \leq R$.
 
-\section{Designing the \psi_{r}}
+\section{Designing the $\psi_{r}$}
 
 In practice, an approximation of \ref{eq:ddm:inner:prod:def} is evaluated using
 the discrete Fourier transform (DFT) on a signal $x$ that is properly sampled
@@ -282,14 +280,14 @@ inner product is then
 %
 \[
     \left\langle x , \psi_{\omega} \right\rangle \approx 
-    \frac{1}{N} \sum_{n=0}{N-1} x(Tn) w(Tn) exp(-2 \pi j r \frac{n}{N}) 
+    \frac{1}{N} \sum_{n=0}^{N-1} x(Tn) w(Tn) \exp(-2 \pi \sqrt{-1} r \frac{n}{N}) 
 \]
 %
 i.e., the definition of the DFT.%
 \footnote{%
     Notice however that this is an approximation of the inner product and should
     not be interpreted as yielding the Fourier series coefficients of a properly
-    sampled signal $x$ periodic in $\frac{L_{t}}$. This means that other
+    sampled signal $x$ periodic in $L_{t}$. This means that other
     evaluations of the inner product that yield more accurate results are
     possible. For example, the analytic solution is possible if $x$ is assumed
     zero outside of $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$ (the $\psi$ are in
@@ -297,140 +295,30 @@ i.e., the definition of the DFT.%
     appropriate interpolating sinc functions and the integral of this function's
     product with $\psi$ is evaluated.
 }%
-
 The DFT is readily interpreted as a bank of bandpass filters centred at
 normalized frequencies $\frac{r}{N}$ and with frequency response described by
 the Fourier transform of modulated $w$. Therefore choosing $\psi$ amounts to a
 filter design problem under the constraints that the impulse response of the
-filter must be differentiable in $t$ and finite.
+filter must be differentiable in $t$ and finite. To minimize the influence of
+all but one component, granted the components's energy concentrations are
+sufficiently separated in frequency, we desire impulse responses with maximum
+out-of-band rejection or equivalently, windows whose Fourier transform exhibits
+lower side-lobes.
 
 In all the publications these authors reviewed on the DDM, the window used was
 the Hann window.
-Nuttall has designed windows with greater out-of-band rejection (lower
-side-lobes) than the canonical Hann window which are still differentiable.
-
-\subsection{Figures}
-\label{ssec:figures}
-All figures should be centred on the column (or page, if the figure spans both columns).
-Figure captions (in italic) should follow each figure and have the format given in Figure \ref{fft_plot}.
-%
-Vectorial figures are preferred. For example when using
-\texttt{Matlab}, export using either Postscript or PDF format. Also,
-in order to provide a better readability, figure text font size
-should be at least identical to footnote font size. To do so using
-\texttt{Matlab}, use the \texttt{subplot} command before plotting.
-If bitmap figures are used, please make sure that the resolution is
-enough for print quality. Fig. \ref{ftt_plot2} illustrates an
-example of a figure spanning two columns.
-%
-%
-
-\subsection{Tables}
-As for figures, all tables should be centered on the column (or page, if the table spans both columns).
-Table captions should be in italic, precede each table and have the format given in Table \ref{tab:example}.
-
-\begin{table}[ht]
-  \caption{\itshape Basic trigonometric values.}
-	\centering
-	\begin{tabular}{|c|c|}
-		\hline
-		$\mathrm{angle}\,(\theta, \mathrm{rad})$ & $\sin \theta$ \\\hline
-		$\frac{\pi}{2}$ & $1$ \\
-		$\pi$ & $0$ \\
-		$\frac{3\pi}{2}$ & $-1$ \\
-		$2\pi$ & $0$ \\\hline
-	\end{tabular}
-	%
-	\label{tab:example}
-\end{table}
-
-\begin{table*}[ht]
-  \caption{{\it Basic trigonometric values, spanning two columns.}}
-	\centering
-  \begin{tabular}{|c|c|c|c|c|c|c|}\hline
-    $\mathrm{angle}\, (\theta, \mathrm{rad})$ & $\sin \theta$ & $\cos \theta $ & $(\sin \theta)/2 $ & $(\cos \theta) /2 $ & $(\sin \theta)/3 $ & $(\cos \theta)/3$    \\\hline
-    $\frac{\pi}{2}$ & $1$ & $0$ & $1/2$ & $0$ & $1/3$ & $0$ \\
-    $\pi$ & $0$ & $-1$ & $0$ & $-1/2$ & $0$ & $-1/3$\\
-    $\frac{3\pi}{2}$ & $-1$ & $0$ & $-1/2$ & $0$ & $-1/3$ & $0$ \\
-    $2\pi$ & $0$ & $1$ & $0$ & $1/2$ & $0$ & $1/3$ \\\hline
- \end{tabular}
-	%
-  \label{tab:example2}
-\end{table*}
-
-\subsection{Equations}
-Equations should be placed on separate lines and numbered:
-
-\begin{equation}
-	X(e^{j\Omega})=\sum_{n=0}^{N-1}x(n)e^{-j\Omega n}
-	\label{eq1}
-	\end{equation}
-	where the sequence $x(n)$ in equation (\ref{eq1}) is a windowed frame:
-	\begin{equation}
-	x(n)=s(n) w(n)
-	\label{eq2}
-\end{equation}
-%
-with a window function $w(n)$.
-
-
-\subsection{Page Numbers}
-Page numbers will be added to the document in the postprocessing stage, so {\em please leave the numbering as is},
-that is, the first page will start at page DAFX-1 and the last page, at most, will have to be DAFX-8.
-
-
-\subsection{References}
-A test reference \cite{betser2009sinusoidal}.
-
-\subsubsection{Reference Format}
-The reference format is the standard IEEE one. We recommend to use BibTeX to create the reference list.
-
+Nuttall has designed windows with lower
+side-lobes than the canonical Hann window which are still differentiable.
 
 \section{Conclusions}
-This template can be found on the conference website.
-For changing the number of author affiliations (1 to 4), uncomment the corresponding regions in the template \texttt{tex} file.
-Please, submit full-length papers (max.~8 pages both oral and poster presentations).
-Submission is fully electronic and automated through the Conference Web Submission System.
-DO NOT send us papers directly by e-mail.
 
 \section{Acknowledgments}
-Many thanks to the great number of anonymous reviewers!
 
 %\newpage
 \nocite{*}
 \bibliographystyle{IEEEbib}
 \bibliography{paper} % requires file DAFx17_tmpl.bib
 
-\section{Appendix: Margin Check}
-This section shows the column margins for the text. \bigskip\newline
+\section{Appendix}
 
-Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
-
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
-
-Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.
-
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.
-
-Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-
-Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
-
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
-
-Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.
-
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.
-
-Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. 
 \end{document}
