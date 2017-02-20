@@ -310,6 +310,16 @@ the Hann window.
 Nuttall has designed windows with lower
 side-lobes than the canonical Hann window which are still differentiable.
 
+The family of parametric windows whose construction is based on functions
+proposed by Slepian et al. maximimzing the energy in a given bandwidth can be
+tuned to have extremely low side-lobes, at the expense of main-lobe width.
+Differentiation of these window functions may be possible but is not as
+straight-forward as differentiation of the sum-of-cosine windows. Furthermore,
+the windows do not generally have end-points equal to 0. Motivated by this, and
+the desire to approximate aribtrary windows using sums of cosines leads us to
+the design of high-performance windows (e.g., with extremely low side-lobes) by
+approximation.
+
 \section{Conclusions}
 
 \section{Acknowledgments}
@@ -317,7 +327,7 @@ side-lobes than the canonical Hann window which are still differentiable.
 %\newpage
 \nocite{*}
 \bibliographystyle{IEEEbib}
-\bibliography{paper} % requires file DAFx17_tmpl.bib
+%\bibliography{paper} % requires file DAFx17_tmpl.bib
 
 \section{Appendix}
 

@@ -33,11 +33,11 @@ N_eval=100
 
 
 # SNRs to test
-snrs=np.arange(-2,11)*(10.)
+snrs=np.arange(-2,20)*(10.)
 
 # Errors
 errs=dict()
-keys=['hann','c1-nuttall-4','c1-nuttall-3','c1-blackman-4','naive-min-blackman-4']
+keys=['hann','c1-nuttall-4','c1-nuttall-3','c1-blackman-4','prolate-0.77-approx-47']
 key_clrs=['b','g','r','m','c']
 for k,c in zip(keys,key_clrs):
     errs[k]=dict()

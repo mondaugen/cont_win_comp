@@ -21,8 +21,8 @@ chirps=ddm.build_offset_chirps(N_chirps=4,
                                W_l_ms=W_l_ms,
                                b1_r=[0.,np.pi*F_s])
 
-wins=['hann','c1-nuttall-4','c1-blackman-4']
-line_stys=['solid','dotted','dashed']
+wins=['hann','c1-nuttall-4','c1-blackman-4','prolate-0.77-approx-47']
+line_stys=['solid','dotted','dashed','dashdot']
 sr_min=-60
 srs=np.arange(sr_min,0,10)
 n_diffs=128

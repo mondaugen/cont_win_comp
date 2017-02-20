@@ -1,25 +1,33 @@
 # Find an optimal window by matching its frequency response with ideal
 # This matches the mid-points of the lobes of the DFT rather than the troughs
+# Because this uses a least-squared error, the solution is not the same as the
+# Blackman-Harris solution (the minimum height of the highest side lobe). To get
+# that, you must use the L-infinity norm.
 import numpy as np
 import cvxopt
 from scipy.linalg import block_diag
 import matplotlib.pyplot as plt
 
-# Window length
+# Window length (non-zero part)
 N=512
 
 # Oversampling (for plotting)
 os=4
 
+# L is total length of window including zero-padding
+L=2*N
+
 # "Half" Fourier basis (cosine part only)
 n=np.arange(N)
-k=np.arange(0.5,N,1)
+l=np.arange(L)
+k=np.arange(1,L,2)
 # First bin centred at frequency 0 (DC)
-F=np.cos(-2*np.pi*n/N).reshape((1,N))
-F=np.concatenate((F,np.cos(-2*np.pi*np.outer(k,n)/N)),axis=0)
+k=np.concatenate(([0],k))
+F_=np.cos(-2*np.pi*np.outer(k,l)/L)
+F=F_[:,((L-N)/2):(-(L-N)/2)]
 
 # Number of cosines to sum
-M=3
+M=4
 m=np.arange(M)
 # Cosines to sum to get window
 C=np.cos(2*np.pi*np.outer(n,m)/N)*np.power(-1.,np.arange(M))
@@ -53,7 +61,8 @@ G=np.concatenate((np.identity(F.shape[1]),np.zeros((F.shape[1],C.shape[1]))),axi
 G=np.concatenate((G,-G),axis=0)
 
 # h inequality vector
-h=np.concatenate((np.ones(F.shape[1]),np.zeros(F.shape[1])),axis=0)
+#h=np.concatenate((np.ones(F.shape[1]),np.zeros(F.shape[1])),axis=0)
+h=np.concatenate((np.ones(F.shape[1]),1*np.ones(F.shape[1])),axis=0)
 
 P=cvxopt.matrix(P)
 q=cvxopt.matrix(q)
@@ -83,7 +92,7 @@ if sol['status'] == 'optimal':
     ax2.set_title('DFT of window %d x oversampled' % (os,))
     f_opt=np.dot(F,np.array(sol['x'][:N]).flatten())
     f_opt_max=np.max(np.abs(f_opt))
-    ax3.plot(np.concatenate(([0],k)),20*np.log10(np.abs(f_opt))-20*np.log10(f_opt_max))
+    ax3.plot(k,20*np.log10(np.abs(f_opt))-20*np.log10(f_opt_max))
     ax3.set_title('DFT sample points as seen by optimization algorithm')
     plt.show()
 else:
