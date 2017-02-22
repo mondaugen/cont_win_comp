@@ -15,6 +15,8 @@ W_l_ms=32
 W_l=F_s*(W_l_ms/1000.)
 # Time indices
 t=np.arange(W_l)/float(F_s)
+# Number of bins to use in estimation
+R=3
 
 # Parameter ranges
 # Amplitude part
@@ -97,7 +99,8 @@ for k in errs.keys():
             # Add noise
             y=x+g_no*np.random.standard_normal(int(W_l))
             # Estimate parameters
-            alpha=ddm.ddm_p2_1_3(y,w,dw,kma0)
+            alpha=ddm.ddm_p2_1_R(y,w,dw,kma0,R)
+#            alpha=ddm.ddm_p2_1_3(y,w,dw,kma0)
             if (alpha == None):
                 # If there was a problem solving the system of equations, just
                 # ignore and try again

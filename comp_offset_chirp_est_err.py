@@ -11,7 +11,7 @@ import warnings
 
 F_s=16000
 W_l_ms=32
-
+R=3
 # prepare chirps
 
 chirps=ddm.build_offset_chirps(N_chirps=4,
@@ -23,9 +23,9 @@ chirps=ddm.build_offset_chirps(N_chirps=4,
 
 wins=['hann','c1-nuttall-4','c1-blackman-4','prolate-0.77-approx-47']
 line_stys=['solid','dotted','dashed','dashdot']
-sr_min=-60
+sr_min=-30
 srs=np.arange(sr_min,0,10)
-n_diffs=128
+n_diffs=64
 diffs=xrange(n_diffs)
 errs=dict()
 for w in wins:
@@ -69,8 +69,10 @@ for w in wins:
                     # Sum to make final signal
                     x=c1.x+c2_.x
                     try:
-                        errs_1=ddm.p2_1_3_est(x,c1,0,w,F_s)
-                        errs_2=ddm.p2_1_3_est(x,c2_,d,w,F_s)
+                        #errs_1=ddm.p2_1_3_est(x,c1,0,w,F_s)
+                        #errs_2=ddm.p2_1_3_est(x,c2_,d,w,F_s)
+                        errs_1=ddm.p2_1_3_est(x,c1,0,w,F_s,R)
+                        errs_2=ddm.p2_1_3_est(x,c2_,d,w,F_s,R)
                     except TypeError:
                         nlsqerrs += 1
                         continue

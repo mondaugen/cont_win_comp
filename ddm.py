@@ -133,6 +133,79 @@ def w_dw_sum_cos(M,a='hanning',norm=False):
     dw/=C
     return (w,dw)
 
+def ddm_p2_1_R(x,w,dw,kma0,R=3):
+    """
+    Compute parameters of 2nd order polynomial using R bins surrounding the
+    maximum of the STFT at the centre of signal x.
+
+    x:  
+        the signal to analyse, must have length of at least N_w where N_w is
+        the length of the window.
+    w:  
+        the analysis window.
+    dw: 
+        the derivative of the analysis window.
+    kma0:
+        the index of the maximum. From here the atoms are chosen as the one
+        corresponding to this index and the (N-1) surrounding ones.
+    R:
+        the number of atoms to use. Must be odd.
+
+    Returns
+
+    a:
+        a vector containing the estimated parameters.
+    """
+    if (R % 2 != 1):
+        raise Error('R must be odd.')
+
+    N_w=len(w)
+    nx0=np.arange(N_w)
+    x0=x[nx0]
+    #k_plus=(np.arange((R-1)/2) + kma0 + 1) % N_w
+    #k_minus=((kma0 - np.arange((R-1)/2) - 1) % N_w)[::-1]
+    k_plus=(np.arange((R-1)/2) + kma0 + 1)
+    k_minus=((kma0 - np.arange((R-1)/2) - 1))[::-1]
+    k_atoms=np.concatenate((k_minus,[kma0],k_plus))
+    # Shitty fourier basis, why?
+    F=np.exp(-2.*np.pi*1j*np.outer(k_atoms,nx0)/float(N_w))
+    Xp1w=np.dot(F,x0*w)
+    Xp2w=np.dot(F,2.*nx0*x0*w)
+    Xdw_=np.dot(F,x0*dw)
+    #Xp1w=np.fft.fft(x0*w)
+    #Xp2w=np.fft.fft(2.*nx0*x0*w)
+    #Xdw_=np.fft.fft(x0*dw)
+    Xdw=Xp1w*(-2.*np.pi*1j*k_atoms/float(N_w))+Xdw_
+    A=np.c_[
+            np.r_[
+#                Xp1w[k_atoms]
+                Xp1w
+                ],
+            np.r_[
+#                Xp2w[k_atoms]
+                Xp2w
+                ],
+            ]
+    c=np.c_[
+            np.r_[
+#                Xdw[k_atoms]
+                Xdw
+                ]
+            ]
+    result=[]
+    try:
+        a=np.linalg.lstsq(A,-c)[0]
+        gam=np.exp(a[0]*nx0+a[1]*nx0**2.)
+        t_=np.inner(x0,np.conj(gam))
+        b_=np.inner(gam,np.conj(gam))
+        a0=(np.log(t_)
+            -np.log(b_))
+#        a0=(np.log(Xp1w[kma0])-np.log(np.fft.fft(gam*w)[kma0]))
+        result.append(np.vstack((a0,a)))
+    except ValueError:
+        return None
+    return result
+
 def ddm_p2_1_3(x,w,dw,kma0):
     """
     Compute parameters of 2nd order polynomial using 2 bins surrounding the
@@ -353,7 +426,7 @@ def build_offset_chirps(N_chirps=1000,
         assert(kma0_new==0)
     return rslt
 
-def p2_1_3_est(x,ch,kma0,w_name='hann',F_s=16000):
+def p2_1_3_est(x,ch,kma0,w_name='hann',F_s=16000,R=3):
     """
     Estimate the parameters of the chirp using the DDM and output the
     errors.
@@ -370,7 +443,7 @@ def p2_1_3_est(x,ch,kma0,w_name='hann',F_s=16000):
     # Generate window
     w,dw=w_dw_sum_cos(len(x),w_name,norm=False)
     # Estimate parameters
-    alpha=ddm_p2_1_3(x,w,dw,kma0)
+    alpha=ddm_p2_1_R(x,w,dw,kma0,R)
     # DDM estimation is done with normalized frequency, so correct
     # coefficients
     a0_=np.real(alpha[0][0])
