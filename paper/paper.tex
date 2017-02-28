@@ -143,7 +143,7 @@ i.e., signals of the form
     x(t) = \exp(a_0 + \sum_{j=1}^{Q} a_j t^j)
 \]
 have been developed. Many equivalent techniques have been developed for
-estimating the $a_j$ have been developed. In this paper we compare with the
+estimating the $a_j$. In this paper we compare with the
 Distribution Derivative Method (DDM) only, without loss of generality.
 
 \section{The estimation of $a_j$}
@@ -231,7 +231,7 @@ In situations where multiple signal sources are known to exist (e.g., recordings
 of multiple speakers or performers) such a model is plausible.
 
 We examine how this mixture model influences the estimation of the $a_{i,j}$.
-Consider a mixture of $P$ components
+Consider a mixture of $P$ components.
 If we define the weighted signal sum
 %
 \[
@@ -252,7 +252,7 @@ and substitute $g$ for $f$ in \ref{eq:ddm:weighted:sig:derivative} we obtain
 %
 From this we see if $\left\langle \mathcal{T}^{j-1} x_i , \overline{\psi}_{r}
 \right\rangle$ and $\left\langle x_i, \frac{d\overline{\psi_{r}}}{dt} \right\rangle$
-is small for all but $i = i^{\ast}$ and a subset of $R$ atoms, we
+are small for all but $i = i^{\ast}$ and a subset of $R$ atoms, we
 can simply estimate the parameters $a_{i^{\ast},j}$ using
 \[
     \sum_{j=1}^{Q} j a_{i,j} 
@@ -283,7 +283,7 @@ inner product is then
     \frac{1}{N} \sum_{n=0}^{N-1} x(Tn) w(Tn) \exp(-2 \pi \sqrt{-1} r \frac{n}{N}) 
 \]
 %
-i.e., the definition of the DFT.%
+i.e., the definition of the DFT of a windowed signal.
 \footnote{%
     Notice however that this is an approximation of the inner product and should
     not be interpreted as yielding the Fourier series coefficients of a properly
@@ -299,26 +299,75 @@ The DFT is readily interpreted as a bank of bandpass filters centred at
 normalized frequencies $\frac{r}{N}$ and with frequency response described by
 the Fourier transform of modulated $w$. Therefore choosing $\psi$ amounts to a
 filter design problem under the constraints that the impulse response of the
-filter must be differentiable in $t$ and finite. To minimize the influence of
+filter be differentiable in $t$ and finite. To minimize the influence of
 all but one component, granted the components's energy concentrations are
-sufficiently separated in frequency, we desire impulse responses with maximum
+sufficiently separated in frequency, we desire impulse responses whose magnitude
+response gives maximum
 out-of-band rejection or equivalently, windows whose Fourier transform exhibits
-lower side-lobes.
+the lowest side-lobes.
 
 In all the publications these authors reviewed on the DDM, the window used was
-the Hann window.
-Nuttall has designed windows with lower
-side-lobes than the canonical Hann window which are still differentiable.
+the Hann window which is once-differentiable everywhere in the time-domain.
+Nuttall has designed windows with lower side-lobes than the canonical Hann
+window which are everywhere at least once-differentiable. It is also possible to
+design approximations to aribtrary symmetrical window functions using
+harmonically related cosines, as is discussed in the following section.
 
-The family of parametric windows whose construction is based on functions
-proposed by Slepian et al. maximimzing the energy in a given bandwidth can be
+\section{Differentiable approximations to windows}
+
+An differentiable approximation to a symmetrical window can be designed in a
+straight-forward way. (Harris) and (McGonnegal) have shown how to design optimal
+windows of length $N$ samples using a linear combination of $M$ harmonically
+related cosines
+\begin{equation}
+    w(n) = \sum_{k=0}^{M-1} b_{k} \cos (2 \pi k \frac{n}{N})
+\mathcal{R}(\frac{n}{N})
+\end{equation}
+where $\mathcal{R}$ is the \textit{rectangle function}. This function is discontinous
+at $n = \frac{\pm N}{2}$, and therefore not differentiable there, unless
+\[
+\sum_{k=0}^{M-1} b_{k} \cos ( \pm \pi k ) = 0
+\]
+
+We choose the $b_{k}$ so that the window $w$'s squared approximation error to
+$v$ is minimized
+while having $w(\frac{\pm N}{2}) = 0$, i.e. we find the solution $\{
+b^{\ast}_{k} \}$ to the mathematical program
+\begin{equation}
+    \text{minimize}
+    \sum_{n=0}^{N-1} ( v(n) 
+        - \sum_{k=0}^{M-1} b_{k} \cos(2 \pi k \frac{n}{N}))^{2}
+\end{equation}
+\[
+    \text{subject to} \\
+    \sum_{k=0}^{M-1} b_{k} \cos(\pi k ) = 0
+\]
+which can be solved using standard numerical linear algebra routines (Goulob and
+Van Loan p 585).
+
+\section{Approximating digital prolate spheroidal windows}
+
+Digital prolate spheroidal windows are a parametric approximation to functions
+proposed by Slepian et al. maximimzing the energy in a given bandwidth. These can be
 tuned to have extremely low side-lobes, at the expense of main-lobe width.
 Differentiation of these window functions may be possible but is not as
-straight-forward as differentiation of the sum-of-cosine windows. Furthermore,
-the windows do not generally have end-points equal to 0. Motivated by this, and
-the desire to approximate aribtrary windows using sums of cosines leads us to
-the design of high-performance windows (e.g., with extremely low side-lobes) by
-approximation.
+straightforward as differentiation of the sum-of-cosine windows. Furthermore,
+the windows do not generally have end-points equal to 0. In the following we
+will demonstrate how to approximate one of these windows.
+
+(Verna, Bilbao et al.) showed how to construct prolate spheroidal windows under
+parmeters $N$, the window length in samples, and $W$. We chose $N$ based on the
+window length chosen in (Betser) for ease of comparison. $W^{\ast}$ was chosen
+by synthesizing windows with $W$ ranging between $0.01$ and $0.99$ at a resolution
+of $0.01$. The window with the lowest height of the highest sidelobe was obtained
+with $W=0.77$. It is shown in (figure). 
+mainlobe width.
+
+The approximation method yields a window virtually identical to the digital
+prolate spheroidal window: in our realisation, the approximation error was
+everywhere less than $10^{-13}$.
+
+% TODO: Plot these windows
 
 \section{Conclusions}
 

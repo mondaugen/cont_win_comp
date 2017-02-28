@@ -4,7 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cvxopt
 
-show_plot=False
+plt.rc('text',usetex=True)
+plt.rc('font',family='serif')
+
+show_plot=True
 
 # Window length
 N=512
@@ -57,15 +60,17 @@ w=ddm.w_dw_sum_cos(N,a)[0]
 N_F=N*os
 v_F=np.fft.fft(v,N_F)
 w_F=np.fft.fft(np.concatenate((w.reshape((1,N)),w[0].reshape((1,1))),axis=1),N_F).flatten()
-v_F=20*np.log10(np.abs(v_F))
-w_F=20*np.log10(np.abs(w_F))
+v_F_a=np.abs(v_F)
+w_F_a=np.abs(w_F)
+v_F=20*np.log10(v_F_a)
+w_F=20*np.log10(w_F_a)
 v_F-=np.max(v_F)
 w_F-=np.max(w_F)
 v_F=np.concatenate((v_F[N_F:],v_F[:N_F]))
 w_F=np.concatenate((w_F[N_F:],w_F[:N_F]))
 bins_F=np.arange(0,N,1./os)
 
-fig1,axs=plt.subplots(2,2)
+fig1,axs=plt.subplots(3,2)
 axs[0,0].plot(bins_F,v_F)
 axs[0,0].set_title('prolate spheroidal window, magnitude spectrum')
 axs[1,0].plot(bins_F,w_F)
@@ -76,6 +81,23 @@ axs[0,1].set_title('prolate spheroidal window, time-domain')
 axs[1,1].plot(n,w)
 axs[1,1].set_title('sum-of-cosine approx. window, time-domain')
 
+axs[2,0].plot(bins_F,20*np.log10(np.abs(v_F_a-w_F_a)))
+axs[2,0].set_title('log approximation error, magnitude spectrum')
+axs[2,1].plot(n,np.log10(np.abs(v[:-1]-w)))
+axs[2,1].set_title('log approximation error, time-domain')
+
+fig2,axs2=plt.subplots(2,1,num=2)
+axs2[0].plot(n,w)
+axs2[0].set_title('Sum-of-cosine approximation, time-domain')
+axs2[0].set_xlabel('Sample number')
+axs2[0].set_ylabel('Amplitude')
+axs2[1].plot(n,np.log10(np.abs(v[:-1]-w)))
+axs2[1].set_title('Approximation error, time-domain')
+axs2[1].set_xlabel('Sample number')
+axs2[1].set_ylabel('$\log_{10}$ absolute error')
+
+for ax_ in axs2:
+    ax_.set_xlim([0,N])
+
 if (show_plot):
     plt.show()
-

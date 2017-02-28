@@ -4,6 +4,9 @@ import ddm
 import matplotlib.pyplot as plt
 import sigmod as sm
 
+plt.rc('text',usetex=True)
+plt.rc('font',family='serif')
+
 # Length of window
 N=513
 # Length of DFT (controls zero-padding)
