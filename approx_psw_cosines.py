@@ -99,5 +99,8 @@ axs2[1].set_ylabel('$\log_{10}$ absolute error')
 for ax_ in axs2:
     ax_.set_xlim([0,N])
 
+print 'prolate endpoint: %g' % (v[0],)
+print 'approx endpoint: %g' % (w[0],)
+
 if (show_plot):
     plt.show()

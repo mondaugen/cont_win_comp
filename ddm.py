@@ -3,6 +3,14 @@
 import numpy as np
 import numpy.linalg as LA
 import matplotlib.pyplot as plt
+import scipy.optimize as spopt
+import cvxopt
+
+FONT_OPT=dict()
+FONT_OPT['dafx']={
+        'family':'serif',
+        'sans-serif':'Times'
+}
 
 def eig_pow_method(A,d=1.e-6,maxiters=1000):
     """
@@ -62,6 +70,12 @@ def w_dw_sum_cos(M,a='hanning',norm=False):
             c=np.r_[0.54,0.46]
         elif (a=='naive-min-blackman-4'):
             c=np.r_[0.35875,0.48829,0.14128,0.01168]
+        elif (a=='prolate-0.008-approx-5'):
+            c=np.r_[3.128258203861262743e-01,
+                    4.655346501582137142e-01,
+                    1.851027605614040672e-01,
+                    3.446534984178639682e-02,
+                    2.071419052469766937e-03]
         elif (a=='prolate-0.77-approx-47'):
             # Does the number of figures contribute significantly to the
             # accuracy?
@@ -481,4 +495,108 @@ def psw_design(N,W):
     (L,V)=np.linalg.eig(A)
     v=V[:,np.argmax(np.abs(L))]
     return v
+
+def bw_bins(w,A_bw=10.**(-3./20.),k_hint=0,k_max=0):
+    """
+    Find the bin closest to k_hint that has ampltiude A_bw.
+    This is useful for finding the 3db bandwidth of windows.
+    Note that this amplitude is normalized by the DTFT at the maximum bin
+    (k_max).
+
+    Arguments:
+        
+        w:
+            the window whose DTFT will be used to find the bin.
+        A_bw:
+            the amplitude of the desired bin.
+        k_hint:
+            the bin from which the search will start, can be float.
+        k_max:
+            the bin where the DTFT will be maximum, can be float.
+
+    Returns:
+        k, the bin whose amplitude is closest to A_bw.
+    """
+    # Fourier transform at maxmimum bin
+    N=len(w)
+    n=np.arange(N)
+    W_0=np.inner(w,np.exp(-2.*np.pi*1j*n*float(k_max)/N))
+    def _f(x):
+        result = np.inner(w,np.exp(-2.*np.pi*1j*n*x/float(N)))/W_0 
+        result = result * np.conj(result)
+        return  np.real(result - A_bw**2.)
+    def _df(x):
+        W_k=np.inner(w,np.exp(-2.*np.pi*1j*n*x/float(N)))
+        result1 = (np.inner(w,-2.*np.pi*1j*n/float(N)*np.exp(-2.*np.pi*1j*n*x/float(N)))/W_0) 
+        result1 *= np.conj(W_k/W_0)
+        result2 = (np.inner(w,2.*np.pi*1j*n/float(N)*np.exp(2.*np.pi*1j*n*x/float(N)))/W_0) 
+        result2 *= W_k/W_0
+        return np.real(result1+result2)
+    k_opt = spopt.newton(_f,k_hint,_df)
+#    k_opt = spopt.newton(_f,k_hint)
+    return k_opt
+
+def cos_approx_win(v,M,c={'c1'}):
+    """
+    Find the M term harmonically related cosine approximation of v.
+    c is a set of constraints.
+
+    v:
+        A vector representing the window to approximate.
+        Usually v will have even length so that its periodization is
+        symmetric around v[0] (it is an even function).
+    M:
+        The number of terms in the approximation.
+    c:
+        A set of keywords indicating constraints.
+        By default {'c1'}, which makes the window once differentiable.
+        (This is currently the only possible constraint).
+
+    Returns:
+
+    a:
+        The M coefficients of the window.
+
+    """
+    N=len(v)
+    n=np.arange(N)
+    m=np.arange(M)
+    # Cosines to sum to get window
+    C=np.cos(2*np.pi*np.outer(n,m)/N)*np.power(-1.,np.arange(M))
+    d=dict()
+    d['P']=cvxopt.matrix(2.*np.dot(C.T,C))
+    d['q']=cvxopt.matrix(-2.*np.dot(C.T,v.reshape(N,1)))
+    if 'c1' in c:
+        A=np.concatenate((np.ones((1,M)),C[0,:].reshape((1,M))),axis=0)
+        b=np.array([[1.],[0.]])
+        d['A']=cvxopt.matrix(A)
+        d['b']=cvxopt.matrix(b)
+    a=cvxopt.solvers.qp(**d)['x']
+    a=np.array(a).flatten()
+    return a
+
+def crlb_pq(a,t,sig2):
+    """
+    Returns the CR lower bounds for the parameters a0, ..., a(q-1).
+
+    a:
+        The coefficients of the log-amplitude polynomial, i.e.,
+        exp(a0 + a1 * t + a2 * t^2 + ... + a(q-1) * t^(q-1)).
+        These values should be real.
+    t:
+        The values of t over which to sum.
+    sig2:
+        The variance of the noise.
+
+    Returns a vector v of length q, v[0] is CRLB of paramater a0
+    """
+    # Build Fischer matrix
+    q=len(a)
+    F=np.zeros((q,q),dtype='float')
+    for i in xrange(q):
+        for j in xrange(q):
+            F[i,j]=2./sig2 * np.sum(np.pow(t,i+j) *
+                    exp(2*np.polyval(a[::-1],t)))
+    # Return diagonal of inverse
+    return np.diag(np.linalg.inv(F))
 

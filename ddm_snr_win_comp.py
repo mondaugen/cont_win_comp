@@ -33,21 +33,22 @@ ph3_r=[-1.e6,1.e6]
 # Number of evaluations to perform
 N_eval=100
 
-
 # SNRs to test
 snrs=np.arange(-2,20)*(10.)
 
 # Errors
 errs=dict()
-keys=['hann','c1-nuttall-4','c1-nuttall-3','c1-blackman-4','prolate-0.77-approx-47']
-key_clrs=['b','g','r','m','c']
-for k,c in zip(keys,key_clrs):
+keys=['hann','c1-nuttall-4','c1-nuttall-3','prolate-0.008-approx-5']
+key_clrs=['k' for _ in xrange(4)]
+key_ls=['solid','dotted','dashed','dashdot']
+for k,c,ls in zip(keys,key_clrs,key_ls):
     errs[k]=dict()
     # Amplitude part
     errs[k]['a']=[[],[],[]]
     # Phase part
     errs[k]['ph']=[[],[],[]]
-    errs[k]['clr']=c
+    # Plotting descriptors
+    errs[k]['plot_dict']={'c':c,'ls':ls}
 
 for k in errs.keys():
 
@@ -146,10 +147,10 @@ fig, axarr = plt.subplots(3,2)
 
 for k in errs.keys():
     for i,pl in zip(xrange(len(errs[k]['a'])),axarr[:,0]):
-        pl.plot(snrs,np.log10(errs[k]['a'][i]),c=errs[k]['clr'],label=k)
+        pl.plot(snrs,np.log10(errs[k]['a'][i]),label=k,**errs[k]['plot_dict'])
         pl.set_title('a_%d' % (i,))
     for i,pl in zip(xrange(len(errs[k]['ph'])),axarr[:,1]):
-        pl.plot(snrs,np.log10(errs[k]['ph'][i]),c=errs[k]['clr'],label=k)
+        pl.plot(snrs,np.log10(errs[k]['ph'][i]),label=k,**errs[k]['plot_dict'])
         pl.set_title('ph_%d' % (i,))
 
 axarr[0,0].legend(fontsize=10)
