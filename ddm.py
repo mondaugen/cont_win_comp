@@ -595,8 +595,8 @@ def crlb_pq(a,t,sig2):
     F=np.zeros((q,q),dtype='float')
     for i in xrange(q):
         for j in xrange(q):
-            F[i,j]=2./sig2 * np.sum(np.pow(t,i+j) *
-                    exp(2*np.polyval(a[::-1],t)))
+            F[i,j]=2./sig2 * np.sum(np.power(t,i+j) *
+                    np.exp(2*np.polyval(a[::-1],t)))
     # Return diagonal of inverse
     return np.diag(np.linalg.inv(F))
 
