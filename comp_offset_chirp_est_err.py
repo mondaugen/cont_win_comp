@@ -7,6 +7,9 @@ from matplotlib import cm
 
 import warnings
 
+plt.rc('text',usetex=True)
+plt.rc('font',**ddm.FONT_OPT['dafx'])
+
 #warnings.simplefilter('error','RuntimeWarning')
 
 F_s=16000
@@ -21,11 +24,12 @@ chirps=ddm.build_offset_chirps(N_chirps=4,
                                W_l_ms=W_l_ms,
                                b1_r=[0.,np.pi*F_s])
 
-wins=['hann','c1-nuttall-4','c1-blackman-4','prolate-0.008-approx-5']
+wins=['hann','c1-nuttall-4','c1-nuttall-3','prolate-0.008-approx-5']
 line_stys=['solid','dotted','dashed','dashdot']
-sr_min=-30
-srs=np.arange(sr_min,0,10)
-n_diffs=64
+labels=['H','C4','C4','P5']
+sr_min=-60
+srs=np.arange(sr_min,10,20)
+n_diffs=40
 diffs=xrange(n_diffs)
 errs=dict()
 for w in wins:
@@ -35,7 +39,7 @@ for w in wins:
         errs[w][s]['diffs']=[0 for _ in diffs]
         errs[w][s]['diffs_log']=[0 for _ in diffs]
 
-cmap=plt.get_cmap('gnuplot')
+cmap=plt.get_cmap('Greys')
 
 # Chirp creator
 cp2c=ddm.chirp_p2_creator(W_l_ms,F_s)
@@ -83,14 +87,25 @@ for w in wins:
 
 fig=plt.figure(1)
 
-for w,ls in zip(wins,line_stys):
+diffs_min=1000.
+diffs_max=-1000.
+for w,ls,lab in zip(wins,line_stys,labels):
     for s in srs:
-        clr=cmap(s/float(sr_min))
+        clr=cmap((-1.*s+20.)/(-1.*float(sr_min)+20.))
         print errs[w][s]['diffs_log']
         plt.plot(diffs,
-                errs[w][s]['diffs_log'],c=clr,ls=ls)
+                errs[w][s]['diffs_log'],c=clr,ls=ls,label=lab + ' %d dB' % (s,))
+        if np.max(errs[w][s]['diffs_log']) > diffs_max:
+            diffs_max = np.max(errs[w][s]['diffs_log'])
+        if np.min(errs[w][s]['diffs_log']) < diffs_min:
+            diffs_min = np.min(errs[w][s]['diffs_log'])
 
 plt.xlabel('Difference of between maxima in bins')
 plt.ylabel('log10 MSE')
+plt.legend(fontsize=10,loc='upper right')
+plt.xlim([0,n_diffs-1])
+plt.ylim([diffs_min,diffs_max])
+plt.title('Total mean-squared estimation error for two signals at various ' +
+    'signal power ratios')
 
 plt.show()
