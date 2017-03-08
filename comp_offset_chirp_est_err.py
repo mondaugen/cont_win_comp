@@ -17,7 +17,7 @@ W_l_ms=32
 R=3
 # prepare chirps
 
-chirps=ddm.build_offset_chirps(N_chirps=4,
+chirps=ddm.build_offset_chirps(N_chirps=6,
                                # Sample rate (Hz)
                                F_s=F_s,
                                # Window length (ms)
@@ -27,8 +27,8 @@ chirps=ddm.build_offset_chirps(N_chirps=4,
 wins=['hann','c1-nuttall-4','c1-nuttall-3','prolate-0.008-approx-5']
 line_stys=['solid','dotted','dashed','dashdot']
 labels=['H','C4','C4','P5']
-sr_min=-60
-srs=np.arange(sr_min,10,20)
+sr_min=-30
+srs=np.arange(sr_min,10,10)
 n_diffs=40
 diffs=xrange(n_diffs)
 errs=dict()
@@ -107,5 +107,7 @@ plt.xlim([0,n_diffs-1])
 plt.ylim([diffs_min,diffs_max])
 plt.title('Total mean-squared estimation error for two signals at various ' +
     'signal power ratios')
+
+plt.savefig('paper/comp_offset_chirp_est_err.eps')
 
 plt.show()

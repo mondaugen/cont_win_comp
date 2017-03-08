@@ -33,6 +33,9 @@
 \setcounter{page}{1}
 \ninept
 
+\usepackage{hyphenat}
+\hyphenation{spher-oidal}
+
 \usepackage{times}
 % Saves a lot of ouptut space in PDF... after conversion with the distiller
 % Delete if you cannot get PS fonts working on your system.
@@ -139,10 +142,11 @@ TODO
 \section{The polynomial phase sinusoid}
 Recently techniques for estimating the parameters of complex polynomial phase sinusoids,
 i.e., signals of the form
-\[
+\begin{equation}
+    \label{eq:polyphaseexp}
     x(t) = \exp(a_0 + \sum_{j=1}^{Q} a_j t^j)
-\]
-with $a_{i} \in \Complex$, have been developed. Many equivalent techniques have
+\end{equation}
+with $a_{i} \in \mathbb{C}$, have been developed. Many equivalent techniques have
 been developed for estimating the $a_j$. In this paper we compare with the
 Distribution Derivative Method (DDM) only, without loss of generality.
 
@@ -151,7 +155,7 @@ We will now show briefly how the DDM can be used to estimate the $a_j$. Based on
 the theory of distributions (Laurent Schwartz), the DDM
 makes use of ``test
 functions'' or atoms $\psi$. These atoms must be once differentiable with respect to
-$t$ and be non-zero only on a finite interval $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$. First, we define
+time variable $t$ and be non-zero only on a finite interval $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$. First, we define
 %
 \begin{equation}
     \label{eq:ddm:inner:prod:def}
@@ -217,9 +221,10 @@ Although this technique can be exteded to describe a single
 sinusoid of arbitrary complexity simply by increasing $Q$, it is still of
 interest to consider a signals featuring a sum of $P$ such components, i.e.,
 %
-\[
+\begin{equation}
+    \label{eq:polyphaseexpmix}
     s(t) = \sum_{i=1}^{P} x_{i}(t)
-\]
+\end{equation}
 %
 with
 %
@@ -262,8 +267,9 @@ can simply estimate the parameters $a_{i^{\ast},j}$ using
 for $1 \leq r \leq R$.
 
 \section{Designing the $\psi_{r}$}
+\label{sec:designingatoms}
 
-In practice, an approximation of \ref{eq:ddm:inner:prod:def} is evaluated using
+In practice, an approximation of Eq.~\ref{eq:ddm:inner:prod:def} is evaluated using
 the discrete Fourier transform (DFT) on a signal $x$ that is properly sampled
 and so can be evaluated at a finite number of points $nT$ with $n \in [0,N-1]$ and
 $T$ the sample period in seconds. In this way, the atoms $\psi_{\omega}(t)$ chosen
@@ -280,10 +286,10 @@ inner product is then
 %
 \[
     \left\langle x , \psi_{\omega} \right\rangle \approx 
-    \frac{1}{N} \sum_{n=0}^{N-1} x(Tn) w(Tn) \exp(-2 \pi \sqrt{-1} r \frac{n}{N}) 
+    \sum_{n=0}^{N-1} x(Tn) w(Tn) \exp(-2 \pi \sqrt{-1} r \frac{n}{N}) 
 \]
 %
-i.e., the definition of the DFT of a windowed signal.
+i.e., the definition of the DFT of a windowed signal.%
 \footnote{%
     Notice however that this is an approximation of the inner product and should
     not be interpreted as yielding the Fourier series coefficients of a properly
@@ -296,7 +302,13 @@ i.e., the definition of the DFT of a windowed signal.
     product with $\psi$ is evaluated.
 }%
 The DFT is readily interpreted as a bank of bandpass filters centred at
-normalized frequencies $\frac{r}{N}$ and with frequency response described by
+normalized frequencies%
+\footnote{%
+In this article as in much of the literature on signal processing the index $r$
+of the Fourier basis element corresponding to the frequency $\omega_{r} = 2 \pi
+\frac{r}{N}$ will be referred to as its bin number.
+}
+$\frac{r}{N}$ and with frequency response described by
 the Fourier transform of modulated $w$. Therefore choosing $\psi$ amounts to a
 filter design problem under the constraints that the impulse response of the
 filter be differentiable in $t$ and finite. To minimize the influence of
@@ -315,7 +327,7 @@ harmonically related cosines, as is discussed in the following section.
 
 \section{Differentiable approximations to windows}
 
-An differentiable approximation to a symmetrical window can be designed in a
+A differentiable approximation to a symmetrical window can be designed in a
 straight-forward way. (Harris) and (McGonnegal) have shown how to design optimal
 windows of length $N$ samples using a linear combination of $M$ harmonically
 related cosines
@@ -323,7 +335,8 @@ related cosines
     w(n) = \sum_{k=0}^{M-1} b_{k} \cos (2 \pi k \frac{n}{N})
 \mathcal{R}(\frac{n}{N})
 \end{equation}
-where $\mathcal{R}$ is the \textit{rectangle function}. This function is discontinous
+where $\mathcal{R}$ is the \textit{rectangle function}. This function is
+discontinuous
 at $n = \frac{\pm N}{2}$, and therefore not differentiable there, unless
 \[
 \sum_{k=0}^{M-1} b_{k} \cos ( \pm \pi k ) = 0
@@ -334,6 +347,7 @@ $v$ is minimized
 while having $w(\frac{\pm N}{2}) = 0$, i.e. we find the solution $\{
 b^{\ast}_{k} \}$ to the mathematical program
 \begin{equation}
+    \label{eq:searchcontwinprogram}
     \text{minimize}
     \sum_{n=0}^{N-1} ( v(n) 
         - \sum_{k=0}^{M-1} b_{k} \cos(2 \pi k \frac{n}{N}))^{2}
@@ -342,30 +356,100 @@ b^{\ast}_{k} \}$ to the mathematical program
     \text{subject to} \\
     \sum_{k=0}^{M-1} b_{k} \cos(\pi k ) = 0
 \]
-which can be solved using standard numerical linear algebra routines (Goulob and
-Van Loan p 585).
+which can be solved using constrained least-squares -- a standard numerical
+linear algebra routine (Goulob and Van Loan p 585).
 
-\section{Approximating digital prolate spheroidal windows}
+\section{Continuous window design example}
+\label{sec:designexample}
+\begin{figure*}[t]
+    \centerline{\includegraphics[width=5in]{{search_dpw_bw_m_fig_mainlobe}.eps}}
+\caption{\label{fig:dpwmainlobe} Comparing the mainlobe characteristics of the
+continuous 4-term Nuttall window, the digital prolate window with $W=0.008$, and
+the continuous approximation to the digital prolate window.}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centerline{\includegraphics[width=5in]{{search_dpw_bw_m_fig_asymptotic}.eps}}
+\caption{\label{fig:dpwasymptotic} Comparing the asymptotic power spectrum
+characteristics of the continuous 4-term Nuttall window, the digital prolate
+window with $W=0.008$, and the continuous approximation to the digital prolate
+window.}
+\end{figure*}
+
+As a design example we show how to create a continuous approximation of a digital
+prolate spheroidal window.
 
 Digital prolate spheroidal windows are a parametric approximation to functions
-proposed by Slepian et al. maximimzing the energy in a given bandwidth. These can be
-tuned to have extremely low side-lobes, at the expense of main-lobe width.
-Differentiation of these window functions may be possible but is not as
-straightforward as differentiation of the sum-of-cosine windows. Furthermore,
-the windows do not generally have end-points equal to 0. In the following we
-will demonstrate how to approximate one of these windows.
+proposed by Slepian et al. whose Fourier transform's energy is maximized in a
+given bandwidth. These can be tuned to have extremely low side-lobes, at the
+expense of main-lobe width.  Differentiation of these window functions may be
+possible but is not as straightforward as differentiation of the sum-of-cosine
+windows above. Furthermore, the windows do not generally have end-points equal to 0.
+In the following we will demonstrate how to approximate a digital prolate
+spheroidal window.
 
 (Verna, Bilbao et al.) showed how to construct prolate spheroidal windows under
-parmeters $N$, the window length in samples, and $W$. We chose $N$ based on the
-window length chosen in (Betser) for ease of comparison. $W^{\ast}$ was chosen
-by synthesizing windows with $W$ ranging between $0.01$ and $0.99$ at a resolution
-of $0.01$. The window with the lowest height of the highest sidelobe was obtained
-with $W=0.77$. It is shown in (figure). 
-mainlobe width.
+parameters $N$, the window length in samples, and $W$. We chose $N=512$ based on
+the window length chosen in (Betser) for ease of comparison. Its parameter value
+was chosen by synthesizing windows with $W$ ranging between $0.005$ and $0.010$
+at a resolution of $0.001$. The window with the closest 3db bandwidth to the
+4-term Nuttall window was obtained with $W=0.008$. Its magnitude response is
+shown in Fig.~\ref{fig:dpwmainlobe}~and~\ref{fig:dpwasymptotic}. We see that
+this window's asymptotic roll-off is 6 dB per octave and is therefore not
+continuous (Nuttall). We designed an approximate window using
+Eq.~\ref{eq:searchcontwinprogram} for $M$ varying between $2$ and $N/8$ to find
+the best approximation to the digital prolate window's mainlobe using a small
+number of cosines. The $M$ giving the best approximation was $5$. The magnitude
+response of the approximation is shown in Fig.~\ref{fig:dpwmainlobe}.  We see
+that we obtain a lower highest side-lobe level by slightly sarificing the
+narrowness of the mainlobe. Furthermore in Fig.~\ref{fig:dpwasymptotic} we
+observe that the rolloff of the window is 18 dB per octave because it is
+continuous at all points in its domain.
 
-The approximation method yields a window virtually identical to the digital
-prolate spheroidal window: in our realisation, the approximation error was
-everywhere less than $10^{-13}$.
+\section{The performance of improved windows}
+
+\begin{figure*}[ht]
+    \centerline{\includegraphics[width=5in]{{ddm_snr_win_comp}.eps}}
+\caption{\label{fig:snrwincomp} The estimation variance of random polynomial
+phase sinusoids averaged over 1000 trials. \textit{C} is the Cram\'{e}r-Rao
+lower bound, \textit{N3} and \textit{N4} are the 3- and 4-cosine-term continuous
+Nuttall windows, \textit{H} is the Hann window, and \textit{P5} is the continous
+5-cosine-term approximation to a digital prolate window as described in
+Sec.~\ref{sec:designexample}.}
+\end{figure*}
+
+As in (Betser) we synthesized random sinusoids using Eq.~\ref{eq:polyphaseexp}
+with $Q=2$ and compared the average estimation error variance with the
+theoretical minimum given by the Cram\'{e}r-Rao bound. The original Hann window,
+the windows proposed by Nuttall and the new digital prolate based window were
+used to synthesize the atoms as described in Sec.~\ref{sec:designingatoms} and
+their their estimation error variance was compared (see
+Fig.~\ref{fig:snrwincomp}). After performing the DFT to obtain inner products
+with the atoms, three containing the most signal energy were used in the
+estimations. We see that windows with lower-sidelobes exhibit the lowest
+possible error variance at the sacrifice of some estimator efficiency.
+
+\begin{figure*}[ht]
+    \centerline{\includegraphics[width=5in]{{comp_offset_chirp_est_err}.eps}}
+\caption{\label{fig:mixwincomp}}
+\end{figure*}
+
+To evaluate the performance of the various windows when estimating the
+parameters of components in mixture we synthesized signals using
+Eq.~\ref{eq:polyphaseexpmix} with $P=2$ and $Q=2$. One of the two components was
+scaled to give a desired signal power ratio with the other component. The
+parameters of both components were estimated and the total squared estimation
+error for all the parameters was recorded. In Fig.~\ref{fig:mixwincomp} we see
+that there is generally less estimation error for components having similar
+signal power. This is to be expected as the more powerful signal will mask the
+other less in these scenarios. The estimation error is large when the atoms
+containing the most signal energy for each component are not greatly separated
+in frequency. This is likely due to the convolution of the Fourier transform of
+the window with the signal -- indeed windows with a larger mainlobe exhibit a
+larger `radius' in which the error of the parameter estimation will be high.
+However, for atoms sufficiently separated in frequency, windows with lower
+sidelobes are better at attenuating the other component and for these the
+estimation error is lowest.
 
 % TODO: Plot these windows
 

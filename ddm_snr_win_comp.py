@@ -34,7 +34,7 @@ ph2_r=[-1.e4,1.e4]
 ph3_r=[-1.e6,1.e6]
 
 # Number of evaluations to perform
-N_eval=100
+N_eval=1000
 
 # SNRs to test
 snrs=np.arange(-2,17)*(10.)
@@ -207,7 +207,7 @@ for k in errs.keys():
         pl.set_title('$\Re\{a_%d\}$' % (i,))
         pl.set_ylabel('Error variance ($\log_{10}$)')
         if (i == 2):
-            pl.set_xlabel('SNR')
+            pl.set_xlabel('SNR (dB)')
         pl.set_xlim([snrs[0],snrs[-1]])
         if (np.max(np.log10(errs[k]['a'][i])) > a_maxs[i]):
             a_maxs[i]=np.max(np.log10(errs[k]['a'][i]))
@@ -218,7 +218,7 @@ for k in errs.keys():
         pl.plot(snrs,np.log10(errs[k]['ph'][i]),**errs[k]['plot_dict'])
         pl.set_title('$\Im\{a_%d\}$' % (i,))
         if (i == 2):
-            pl.set_xlabel('SNR')
+            pl.set_xlabel('SNR (dB)')
         pl.set_xlim([snrs[0],snrs[-1]])
         if (np.max(np.log10(errs[k]['ph'][i])) > ph_maxs[i]):
             ph_maxs[i]=np.max(np.log10(errs[k]['ph'][i]))
@@ -233,5 +233,7 @@ for i,pl in zip(xrange(len(errs[k]['ph'])),axarr[:,1]):
 fig.suptitle('Parameter estimation error variance in various SNR')
 
 axarr[0,0].legend(fontsize=10,loc='lower left')
+
+plt.savefig('paper/ddm_snr_win_comp.eps')
 
 plt.show()

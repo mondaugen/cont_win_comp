@@ -142,6 +142,7 @@ for pa in plot_args.keys():
 
 fig_titles=['Nuttall, Prolate and its approximation: asymptotic behaviour',
     'Nuttall, Prolate and its approximation: main lobe']
+fig_short_titles=['asymptotic','mainlobe']
 fig_xlims=[[0,(N-1)/2],[0,(N-1)/16]]
 fig_ylims=[[-250,0],[-160,0]]
 fig_xlabels=['Bin number' for _ in xrange(n_figs)]
@@ -163,6 +164,8 @@ for fignum in xrange(n_figs):
     axs[fignum].legend(handles=[leg_nuttall,leg_prolate,leg_aprx])
     axs[fignum].set_xlabel(fig_xlabels[fignum])
     axs[fignum].set_ylabel(fig_ylabels[fignum])
+    figs[fignum].savefig('search_dpw_bw_m-fig_%s.eps' %
+            (fig_short_titles[fignum],))
 
 print "w_nuttall end point: %g" % (w_nuttall[0],)
 
