@@ -26,7 +26,7 @@ chirps=ddm.build_offset_chirps(N_chirps=6,
 
 wins=['hann','c1-nuttall-4','c1-nuttall-3','prolate-0.008-approx-5']
 line_stys=['solid','dotted','dashed','dashdot']
-labels=['H','C4','C4','P5']
+labels=['H','C4','C3','P5']
 sr_min=-30
 srs=np.arange(sr_min,10,10)
 n_diffs=40
@@ -94,13 +94,13 @@ for w,ls,lab in zip(wins,line_stys,labels):
         clr=cmap((-1.*s+20.)/(-1.*float(sr_min)+20.))
         print errs[w][s]['diffs_log']
         plt.plot(diffs,
-                errs[w][s]['diffs_log'],c=clr,ls=ls,label=lab + ' %d dB' % (s,))
+                errs[w][s]['diffs_log'],c=clr,ls=ls,label=lab + ' $%d$ dB' % (s,))
         if np.max(errs[w][s]['diffs_log']) > diffs_max:
             diffs_max = np.max(errs[w][s]['diffs_log'])
         if np.min(errs[w][s]['diffs_log']) < diffs_min:
             diffs_min = np.min(errs[w][s]['diffs_log'])
 
-plt.xlabel('Difference of between maxima in bins')
+plt.xlabel('Difference between maxima in bins')
 plt.ylabel('log10 MSE')
 plt.legend(fontsize=10,loc='upper right')
 plt.xlim([0,n_diffs-1])

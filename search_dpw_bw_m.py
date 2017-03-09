@@ -127,30 +127,31 @@ w_F_nuttall_plt=w_F_nuttall_plt[wFnp_i]
 #ax2.legend(handles=[leg_nuttall,leg_prolate,leg_aprx])
 
 n_figs=2
-figs=[None for _ in xrange(n_figs)]
-axs=[None for _ in xrange(n_figs)]
-plot_funs=['axs[fignum].semilogx','axs[fignum].plot']
+figs,axs=plt.subplots(1,2)
+plot_funs=['axs[fignum].plot','axs[fignum].plot']
 plot_args={
     "Nuttall" : [{'ls':'dotted'} for _ in xrange(n_figs)],
     "Prolate" : [{'ls':'solid'} for _ in xrange(n_figs)],
     "Prolate Approximation" : [{'ls':'dashed'} for _ in xrange(n_figs)]
 }
 for pa in plot_args.keys():
-    plot_args[pa][0]['basex']=2
     for pa_ in plot_args[pa]:
         pa_['c']='k'
 
-fig_titles=['Nuttall, Prolate and its approximation: asymptotic behaviour',
-    'Nuttall, Prolate and its approximation: main lobe']
+fig_titles=['Nuttall, Prolate and its approximation:\n asymptotic behaviour',
+    'Nuttall, Prolate and its approximation:\n main lobe']
 fig_short_titles=['asymptotic','mainlobe']
-fig_xlims=[[0,(N-1)/2],[0,(N-1)/16]]
+fig_xlims=[[(N-1.)/N_F,(N-1)/2],[0,(N-1)/16]]
 fig_ylims=[[-250,0],[-160,0]]
 fig_xlabels=['Bin number' for _ in xrange(n_figs)]
-fig_ylabels=['Power (dB)' for _ in xrange(n_figs)]
-
+fig_ylabels=['Power (dB)','']
+fig_xscales=['log','linear']
+fig_xscales_kwargs=[{'basex':2},{}]
+leg_nuttall =None
+leg_prolate =None
+leg_aprx    =None
 #for fig in figs:
 for fignum in xrange(n_figs):
-    figs[fignum],axs[fignum]=plt.subplots(1,1)
     leg_nuttall,=eval(plot_funs[fignum])(np.arange(N_F)[wFnp_i]/(float(N_F)/(N-1)),
             w_F_nuttall_plt,label="Nuttall",**plot_args["Nuttall"][fignum])
     leg_prolate,=eval(plot_funs[fignum])(np.arange(N_F)/(float(N_F)/(N-1)),
@@ -161,11 +162,13 @@ for fignum in xrange(n_figs):
     axs[fignum].set_title(fig_titles[fignum])
     axs[fignum].set_xlim(fig_xlims[fignum])
     axs[fignum].set_ylim(fig_ylims[fignum])
-    axs[fignum].legend(handles=[leg_nuttall,leg_prolate,leg_aprx])
     axs[fignum].set_xlabel(fig_xlabels[fignum])
     axs[fignum].set_ylabel(fig_ylabels[fignum])
-    figs[fignum].savefig('search_dpw_bw_m-fig_%s.eps' %
-            (fig_short_titles[fignum],))
+    axs[fignum].set_xscale(fig_xscales[fignum],**fig_xscales_kwargs[fignum])
+
+axs[1].legend(fontsize=10,handles=[leg_nuttall,leg_prolate,leg_aprx])
+figs.set_size_inches(10,4)
+figs.savefig('paper/search_dpw_bw_m.eps')
 
 print "w_nuttall end point: %g" % (w_nuttall[0],)
 

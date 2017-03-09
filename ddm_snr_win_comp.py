@@ -34,7 +34,7 @@ ph2_r=[-1.e4,1.e4]
 ph3_r=[-1.e6,1.e6]
 
 # Number of evaluations to perform
-N_eval=1000
+N_eval=100
 
 # SNRs to test
 snrs=np.arange(-2,17)*(10.)
@@ -230,7 +230,10 @@ for i,pl in zip(xrange(len(errs[k]['a'])),axarr[:,0]):
 for i,pl in zip(xrange(len(errs[k]['ph'])),axarr[:,1]):
     pl.set_ylim([ph_mins[i],ph_maxs[i]])
 
-fig.suptitle('Parameter estimation error variance in various SNR')
+fig.suptitle(
+    'Parameter estimation error variance in various SNR',
+    # hacky way to get title size
+    fontsize=axarr[0,0].title.get_fontproperties().get_size_in_points())
 
 axarr[0,0].legend(fontsize=10,loc='lower left')
 
