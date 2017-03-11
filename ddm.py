@@ -453,6 +453,10 @@ def p2_1_3_est(x,ch,kma0,w_name='hann',F_s=16000,R=3):
         The bin of the centre atom in the estimation scheme.
     w_name:
         The name of the kind of window to use (see: w_dw_sum_cos)
+
+    Returns:
+
+        A tuple containing the absolute error for each parameter.
     """
     # Generate window
     w,dw=w_dw_sum_cos(len(x),w_name,norm=False)

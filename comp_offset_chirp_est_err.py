@@ -17,7 +17,7 @@ W_l_ms=32
 R=3
 # prepare chirps
 
-chirps=ddm.build_offset_chirps(N_chirps=6,
+chirps=ddm.build_offset_chirps(N_chirps=4,
                                # Sample rate (Hz)
                                F_s=F_s,
                                # Window length (ms)
@@ -28,8 +28,8 @@ wins=['hann','c1-nuttall-4','c1-nuttall-3','prolate-0.008-approx-5']
 line_stys=['solid','dotted','dashed','dashdot']
 labels=['H','C4','C3','P5']
 sr_min=-30
-srs=np.arange(sr_min,10,10)
-n_diffs=40
+srs=np.arange(sr_min,10,30)
+n_diffs=20
 diffs=xrange(n_diffs)
 errs=dict()
 for w in wins:
@@ -38,6 +38,13 @@ for w in wins:
         errs[w][s]=dict()
         errs[w][s]['diffs']=[0 for _ in diffs]
         errs[w][s]['diffs_log']=[0 for _ in diffs]
+        errs[w][s]['diffs_params']=dict()
+        errs[w][s]['diffs_params']['a0']=[0 for _ in diffs]
+        errs[w][s]['diffs_params']['a1']=[0 for _ in diffs]
+        errs[w][s]['diffs_params']['a2']=[0 for _ in diffs]
+        errs[w][s]['diffs_params']['b0']=[0 for _ in diffs]
+        errs[w][s]['diffs_params']['b1']=[0 for _ in diffs]
+        errs[w][s]['diffs_params']['b2']=[0 for _ in diffs]
 
 cmap=plt.get_cmap('Greys')
 
@@ -80,12 +87,22 @@ for w in wins:
                     except TypeError:
                         nlsqerrs += 1
                         continue
-                    errs[w][s]['diffs'][d] += np.sum(errs_1) + np.sum(errs_2)
+                    errs[w][s]['diffs'][d] += (np.sum(np.power(errs_1,2.)) +
+                                                np.sum(np.power(errs_2,2.)))
+                    for param,err1,err2 in zip(['a0','a1','a2','b0','b1','b2'],
+                                            errs_1,errs_2):
+                        errs[w][s]['diffs_params'][param][d] =  (err1**2. +
+                                                                    err2**2.)
+
+            for param,err1,err2 in zip(['a0','a1','a2','b0','b1','b2'],
+                                    errs_1,errs_2):
+                errs[w][s]['diffs_params'][param][d] /= len(chirps)**2. - nlsqerrs
             errs[w][s]['diffs'][d] /= len(chirps)**2. - nlsqerrs
             errs[w][s]['diffs_log'][d] =np.log10(errs[w][s]['diffs'][d])
             print 'nerrs: %d for sr %f' % (nlsqerrs,s)
 
 fig=plt.figure(1)
+fig2,axs=plt.subplots(3,2)
 
 diffs_min=1000.
 diffs_max=-1000.
@@ -93,13 +110,40 @@ for w,ls,lab in zip(wins,line_stys,labels):
     for s in srs:
         clr=cmap((-1.*s+20.)/(-1.*float(sr_min)+20.))
         print errs[w][s]['diffs_log']
+        plt.figure(1)
         plt.plot(diffs,
                 errs[w][s]['diffs_log'],c=clr,ls=ls,label=lab + ' $%d$ dB' % (s,))
         if np.max(errs[w][s]['diffs_log']) > diffs_max:
             diffs_max = np.max(errs[w][s]['diffs_log'])
         if np.min(errs[w][s]['diffs_log']) < diffs_min:
             diffs_min = np.min(errs[w][s]['diffs_log'])
+        plt.figure(2)
+        for plt_i,param_name in enumerate(['a0','a1','a2']):
+            axs[plt_i,0].plot(diffs,
+                np.log10(errs[w][s]['diffs_params'][param_name]),c=clr,ls=ls,label=lab + ' $%d$ dB' % (s,))
+        for plt_i,param_name in enumerate(['b0','b1','b2']):
+            axs[plt_i,1].plot(diffs,
+                np.log10(errs[w][s]['diffs_params'][param_name]),c=clr,ls=ls,label=lab + ' $%d$ dB' % (s,))
 
+phs_poly_param_items=[('a_{0,0}','a_{0,0}','a_{1,0}','a_{1,0}'),('a_{0,1}','a_{0,1}','a_{1,1}','a_{1,1}'),('a_{0,2}','a_{0,2}','a_{1,2}','a_{1,2}')]
+re_param_names= ['$\\overline{(\Re\{\hat{%s}\}-\Re\{%s\})^2}+\\overline{(\Re\{\hat{%s}\}-\Re\{%s\})^2}$' % s_ for s_ in phs_poly_param_items]
+im_param_names= ['$\\overline{(\Im\{\hat{%s}\}-\Im\{%s\})^2}+\\overline{(\Im\{\hat{%s}\}-\Im\{%s\})^2}$' % s_ for s_ in phs_poly_param_items]
+for plt_i,param_name in enumerate(re_param_names):
+    axs[plt_i,0].set_title(param_name)
+    axs[plt_i,0].set_ylabel('$\log_{10}$ MSE')
+    axs[plt_i,0].set_xlim([0,n_diffs-1])
+
+for plt_i,param_name in enumerate(im_param_names):
+    axs[plt_i,1].set_title(param_name)
+    axs[plt_i,1].set_xlim([0,n_diffs-1])
+
+axs[2,0].set_xlabel('Difference between maxima in bins')
+axs[2,1].set_xlabel('Difference between maxima in bins')
+
+fig2.tight_layout()
+
+
+plt.figure(1)
 plt.xlabel('Difference between maxima in bins')
 plt.ylabel('log10 MSE')
 plt.legend(fontsize=10,loc='upper right')
