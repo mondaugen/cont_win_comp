@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 plt.rc('text',usetex=True)
 plt.rc('font',**ddm.FONT_OPT['dafx'])
 
+show_plots=False
+
 # Sample rate (Hz)
 F_s=16000
 # Window length (ms)
@@ -34,7 +36,7 @@ ph2_r=[-1.e4,1.e4]
 ph3_r=[-1.e6,1.e6]
 
 # Number of evaluations to perform
-N_eval=100
+N_eval=1000
 
 # SNRs to test
 snrs=np.arange(-2,17)*(10.)
@@ -235,8 +237,16 @@ fig.suptitle(
     # hacky way to get title size
     fontsize=axarr[0,0].title.get_fontproperties().get_size_in_points())
 
+for pl in axarr.flatten():
+    pl.title.get_fontproperties().set_size(10)
+
 axarr[0,0].legend(fontsize=10,loc='lower left')
 
+fig.set_size_inches(10,7)
 plt.savefig('paper/ddm_snr_win_comp.eps')
 
-plt.show()
+with open('paper/ddm_snr_win_comp_defs.txt','w') as f:
+    f.write('\\newcommand{\Ksnr}{%d}\n' % (N_eval,))
+
+if (show_plots):
+    plt.show()

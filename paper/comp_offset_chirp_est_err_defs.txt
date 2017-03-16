@@ -1,0 +1,2 @@
+\newcommand{\Koffset}{10}
+\newcommand{\Doffset}{40}

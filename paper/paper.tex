@@ -35,6 +35,8 @@
 
 \usepackage{hyphenat}
 \hyphenation{spher-oidal}
+%\hyphenation{amp-li-tude}
+%\hyphenation{mod-u-lat-ed}
 
 \usepackage{times}
 % Saves a lot of ouptut space in PDF... after conversion with the distiller
@@ -98,6 +100,9 @@
 \href{mailto:philippe.depalle@music.mcgill.ca}{philippe.depalle@music.mcgill.ca}}
 }
 
+\input{ddm_snr_win_comp_defs.txt}
+\input{comp_offset_chirp_est_err_defs.txt}
+
 \begin{document}
 % more pdf-tex settings:
 \ifpdf % used graphic file format for pdflatex
@@ -109,31 +114,16 @@
 \maketitle
 
 \begin{abstract}
-TODO
+    The accuracy of the Distribution Derivative Method (DDM)
+    \cite{betser2009sinusoidal} is evaluated on mixtures of chirp signals. It is
+    shown that accurate estimation can be obtained when the sets of atoms for
+    which the inner product is large are disjoint.  This amounts to designing
+    atoms with windows whose Fourier transform exhibits low sidelobes but which
+    are once-differentiable in the time-domain. A technique for designing
+    once-differentiable approximations to windows is presented and the accuracy
+    of these windows in estimating the parameters of chirps in mixture is
+    evaluated.
 \end{abstract}
-
-\begin{figure*}[t]
-    \centerline{\includegraphics[width=7in]{{search_dpw_bw_m}.eps}}
-\caption{\label{fig:dpw} Comparing the main-lobe and asymptotic power
-spectrum characteristics of the continuous 4-term Nuttall window, the digital
-prolate window with $W=0.008$, and the continuous approximation to the digital
-prolate window.}
-\end{figure*}
-
-\begin{figure*}[ht]
-    \centerline{\includegraphics[width=5in]{{ddm_snr_win_comp}.eps}}
-\caption{\label{fig:snrwincomp} The estimation variance of random polynomial
-phase sinusoids averaged over 1000 trials. \textit{C} is the Cram\'{e}r-Rao
-lower bound, \textit{N3} and \textit{N4} are the 3- and 4-cosine-term continuous
-Nuttall windows, \textit{H} is the Hann window, and \textit{P5} is the continous
-5-cosine-term approximation to a digital prolate window as described in
-Sec.~\ref{sec:designexample}.}
-\end{figure*}
-
-\begin{figure*}[ht]
-    \centerline{\includegraphics[width=5in]{{comp_offset_chirp_est_err}.eps}}
-\caption{\label{fig:mixwincomp}}
-\end{figure*}
 
 
 \section{Introduction}
@@ -196,15 +186,14 @@ components is negligible. Later we will refine when this assumption can be made.
 \cite{hamilton2012comparisons} gives a comprehensive evaluation of the signal
 derivative methods. In \cite{robel2002estimating} the extent to which two
 components in mixture can corrupt estimations of the frequency slope
-($\Im{a_{0,2}}$ and $\Im{a_{1,2}}$) is investigated in the context of the
+($\Im\{a_{0,2}\}$ and $\Im\{a_{1,2}\}$) is investigated in the context of the
 reassignment method, a related technique, but the corruption of the other
 parameters is not considered.
 
 The signal-derivatives technique we will consider is the
-Distribution Derivative Method for its convenience: the technique does not
+DDM for its convenience: the technique does not
 require computing derivatives of the signal to be analysed. It does, however, require a
-$p$ times differentiable analysis window where $p+1$ is the order of the
-phase polynomial to be estimated. 
+once-differentiable analysis window.
 
 In this paper, we evaluate the performance of various once-differentiable
 windows in estimating the $a_{j}$. We are interested in windows with lower
@@ -317,7 +306,7 @@ To estimate $a_0$ we write the signal we are analysing as
 \]
 where $\epsilon (t)$ is the error signal, the part of the signal that is not explained
 by our model, and $\gamma (t)$ is the part of the signal
-whose coefficients have already been estimated
+whose coefficients have already been estimated, i.e.,
 \[
     \gamma(t) = \exp \left( \sum_{j=1}^{Q} a_j t^{j} \right)
 \]
@@ -358,7 +347,7 @@ and substitute $g$ for $f$ in Eq.~\ref{eq:ddm:weighted:sig:derivative} we obtain
 %
 \begin{multline}
     \label{eq:mixest}
-    \sum_{i=1}{P} \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} \frac{df_{i}}{dt}(t) =
+    \sum_{i=1}^{P} \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} \frac{df_{i}}{dt}(t) =
     0
     \\ = 
     \sum_{i=1}^{P}
@@ -384,7 +373,15 @@ in place of $\gamma$ in Eq.~\ref{eq:ddmesta0}.
 
 \section{Designing the $\psi_{r}$}
 \label{sec:designingatoms}
-
+%
+\begin{figure*}[t]
+    \centerline{\includegraphics[width=7in]{{search_dpw_bw_m}.eps}}
+\caption{\label{fig:dpw} Comparing the main-lobe and asymptotic power
+spectrum characteristics of the continuous 4-term Nuttall window, the digital
+prolate window with $W=0.008$, and the continuous approximation to the digital
+prolate window.}
+\end{figure*}
+%
 In practice, an approximation of Eq.~\ref{eq:ddm:inner:prod:def} is evaluated using
 the discrete Fourier transform (DFT) on a signal $x$ that is properly sampled
 and so can be evaluated at a finite number of points $nT$ with $n \in [0,N-1]$ and
@@ -444,7 +441,18 @@ symmetrical window functions using harmonically related cosines, as is discussed
 in the following section.
 
 \section{Differentiable approximations to windows}
-
+%
+\begin{figure*}[ht]
+    \centerline{\includegraphics[width=7in]{{ddm_snr_win_comp}.eps}}
+\caption{\label{fig:snrwincomp} The estimation variance of random polynomial
+    phase sinusoids averaged over $K_{1}=\Ksnr{}$ trials using atoms generated from
+    various windows. \textit{C} is the Cram\'{e}r-Rao
+lower bound, \textit{N3} and \textit{N4} are the 3- and 4-cosine-term continuous
+Nuttall windows, \textit{H} is the Hann window, and \textit{P5} is the continous
+5-cosine-term approximation to a digital prolate window as described in
+Sec.~\ref{sec:designexample}.}
+\end{figure*}
+%
 A differentiable approximation to a symmetrical window can be designed in a
 straightforward way. In \cite{harris1978use} and \cite{rabiner1970approach} it
 is shown how to design optimal windows of length $N$ samples using a linear
@@ -479,9 +487,24 @@ b^{\ast}_{k} \}$ to the mathematical program
 which can be solved using constrained least-squares -- a standard numerical
 linear algebra routine \cite[p.~585]{golub1996matrix}.
 
-\section{Continuous window design example}
+\section{A continuous window design example}
 \label{sec:designexample}
-
+%
+\begin{figure*}[ht]
+    \centerline{\includegraphics[width=7in]{{comp_offset_chirp_est_err_params}.eps}}
+\caption{\label{fig:mixwincomp} The mean squared estimation error for each
+    parameter in an analysis of two components in mixture. A set of
+    $K_{2}=\Koffset{}$ chirps was synthesized and each unique pair used for
+    maximum bin differences $0 \leq d < \Doffset{}$. The signal power ratio
+    between components is indicated using shades of grey: lighter shades
+    indicate a ratio closer to $1$. The ratio in decibels is indicated in the
+    plot legend. The names indicate the windows used to generate the atoms for
+    estimation: \textit{N3} and \textit{N4} are the 3- and 4-cosine-term
+    continuous Nuttall windows, \textit{H} is the Hann window, and \textit{P5}
+is the continous 5-cosine-term approximation to a digital prolate window as
+described in Sec.~\ref{sec:designexample}.}
+\end{figure*}
+%
 As a design example we show how to create a continuous approximation of a digital
 prolate spheroidal window.
 
@@ -503,7 +526,7 @@ was chosen by synthesizing windows with $W$ ranging between $0.005$ and $0.010$
 at a resolution of $0.001$. The window with the closest 3db bandwidth to the
 4-term Nuttall window was obtained with $W=0.008$. Its magnitude response is
 shown in Fig.~\ref{fig:dpw}. We see that
-this window's asymptotic roll-off is 6 dB per octave and is therefore has a
+this window's asymptotic falloff is 6 dB per octave and therefore has a
 discontinuity somewhere in its domain \cite{nuttall1981some}. We designed an approximate
 window using Eq.~\ref{eq:searchcontwinprogram} for $M$ varying between $2$ and
 $N/8$ to find the best approximation to the digital prolate window's main lobe
@@ -512,13 +535,14 @@ The magnitude response of the approximation is shown in
 Fig.~\ref{fig:dpw}.  We see that we obtain a lower highest sidelobe
 level than the Nuttall and Prolate windows by slightly sarificing the narrowness
 of the main lobe. Furthermore in Fig.~\ref{fig:dpw} we observe that
-the rolloff of the window is 18 dB per octave because it is once-differentiable
+the falloff of the window is 18 dB per octave because it is once-differentiable
 at all points in its domain.
 
 \section{The performance of improved windows}
 
 To compare the average estimation error variance with the
-theoretical minimum given by the Cram\'{e}r-Rao bound we synthesized random sinusoids using Eq.~\ref{eq:polyphaseexp}
+theoretical minimum given by the Cram\'{e}r-Rao bound we synthesized $K_{1}$ random
+chirps using Eq.~\ref{eq:polyphaseexp}
 with $Q=2$ and parameters choosen from uniform distributions justified in
 \cite{betser2009sinusoidal}. The original Hann window,
 the windows proposed by Nuttall and the new digital prolate based window were
@@ -533,31 +557,62 @@ some estimator efficiency.
 To evaluate the performance of the various windows when estimating the
 parameters of components in mixture we synthesized signals using
 Eq.~\ref{eq:polyphaseexpmix} with $P=2$ and $Q=2$ and parameters chosen from the
-uniform distributions specified in \cite{betser2009sinusoidal}. One of the two
-components was scaled to give a desired signal power ratio with the other
-component. The parameters of both components were estimated and the total
-squared estimation error for all the parameters was recorded. In
-Fig.~\ref{fig:mixwincomp} we see that there is generally less estimation error
-for components having similar signal power. This is to be expected as there will
-be less masking of the weaker signal in these scenarios. The estimation error is
-large when the atoms containing the most signal energy for each component are
-not greatly separated in frequency. This is due to the convolution of the
-Fourier transform of the window with the signal, and agrees with what was
-predicted by Eq.~\ref{eq:mixest}: indeed windows with a larger main lobe exhibit
-a larger `radius' in which the error of the parameter estimation will be high.
-However, for signals where local inner product maxima are from atoms sufficiently
-separated in frequency, windows with lower sidelobes are better at attenuating
-the other component and for these the estimation error is lowest.
+uniform distributions specified in \cite{betser2009sinusoidal}. A set
+$\mathcal{C}$ of $K_{2}$ components was synthesized. The atom $r^{\ast}$ for which
+the inner product was maximized was determined for each unmixed chirp and the
+chirp was modulated by $\exp(-2\pi \frac{r^{\ast} n}{N}\sqrt{-1})$ for $0 \leq n
+< N$ in order to move this maximum to $r=0$. Then for each desired difference
+$d$ between maxima in bins, with $0 \leq d < D$, two unique chirps were
+selected from $\mathcal{C}$ and one chirp was modulated by $\exp(2\pi
+\frac{d n}{N}\sqrt{-1})$ for $0 \leq n < N$ in order to give the desired difference in
+maxima. This component was also scaled by a constant to give a desired signal
+power ratio with the other component. The parameters of both components were
+estimated using the bins surrounding $r=0$ and $r=d$ for each component
+respectively and the squared estimation error for each parameter was summed and divided
+by $K_{2}(K_{2}-1)$ to give the averaged squared estimation error for each
+parameter at each difference $d$.
+
+In Fig.~\ref{fig:mixwincomp} we see that there is generally less estimation
+error for components having similar signal power. This is to be expected as
+there will be less masking of the weaker signal in these scenarios.  The
+estimation error is large when the atoms containing the most signal energy for
+each component are not greatly separated in frequency. This is due to the
+convolution of the Fourier transform of the window with the signal, and agrees
+with what was predicted by Eq.~\ref{eq:mixest}: indeed windows with a larger
+main lobe exhibit a larger `radius' in which the error of the parameter
+estimation will be high.  However, for signals where local inner product maxima
+are from atoms sufficiently separated in frequency, windows with lower sidelobes
+are better at attenuating the other component and for these the estimation error
+is lowest.
 
 \section{Conclusions}
 
-\section{Acknowledgments}
+Motivated by the need to analyse mixtures of frequency- and
+am\-pli\-tude-mod\-u\-lat\-ed
+sinusoids (Eq.\ref{eq:polyphaseexpmix}), we have shown that the DDM can be
+employed under a single-component
+assumption when components have roughly disjoint sets of atoms for which their
+inner products take on large values. This indicates the need for windows whose
+Fourier transform exhibits low sidelobes. We developed windows whose sidelobes
+are minimized while remaining everywhere once-differentiable: a requirement to
+generate valid atoms for the DDM. These windows were shown to improve parameter
+estimation of $P=1$ and $P=2$ components in mixture, granted the components
+exhibited reasonable separation in frequency between the atoms for which the
+inner product was maximized.
+
+Further work should evaluate these windows on sinusoids of different orders,
+i.e., $Q \gg 1$. Optimal main-lobe widths for windows should be determined
+depending on the separation of local maxima in the power spectrum. It should
+also be determined if these windows improve the modeling of real-world acoustic
+signals.
+
+%\section{Acknowledgments}
 
 %\newpage
 %\nocite{*}
 \bibliographystyle{IEEEbib}
 \bibliography{paper} % requires file DAFx17_tmpl.bib
 
-\section{Appendix}
+%\section{Appendix}
 
 \end{document}

@@ -1,0 +1,1 @@
+\newcommand{\Ksnr}{1000}
