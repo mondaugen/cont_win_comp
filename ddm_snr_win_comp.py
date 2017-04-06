@@ -44,7 +44,7 @@ snrs=np.arange(-2,17)*(10.)
 # Errors
 errs=dict()
 keys=['crlb','hann','c1-nuttall-4','c1-nuttall-3','prolate-0.008-approx-5']
-key_clrs=['grey']+['k' for _ in xrange(4)]
+key_clrs=['LightGrey']+['k' for _ in xrange(4)]
 key_ls=['solid','solid','dotted','dashed','dashdot']
 key_labels=['C','H','N4','N3','P5']
 for k,c,ls,lab in zip(keys,key_clrs,key_ls,key_labels):

@@ -29,7 +29,7 @@ chirps=ddm.build_offset_chirps(N_chirps=N_chirps,
 
 wins=['hann','c1-nuttall-4','c1-nuttall-3','prolate-0.008-approx-5']
 line_stys=['solid','dotted','dashed','dashdot']
-labels=['H','C4','C3','P5']
+labels=['H','N4','N3','P5']
 sr_min=-30
 srs=np.arange(sr_min,10,30)
 n_diffs=40
@@ -49,7 +49,7 @@ for w in wins:
         errs[w][s]['diffs_params']['b1']=[0 for _ in diffs]
         errs[w][s]['diffs_params']['b2']=[0 for _ in diffs]
 
-cmap=plt.get_cmap('Greys')
+cmap=plt.get_cmap('viridis')
 
 # Chirp creator
 cp2c=ddm.chirp_p2_creator(W_l_ms,F_s)
