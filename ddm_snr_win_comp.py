@@ -240,7 +240,7 @@ fig.suptitle(
 for pl in axarr.flatten():
     pl.title.get_fontproperties().set_size(10)
 
-axarr[0,0].legend(fontsize=10,loc='lower left')
+axarr[0,0].legend(handlelength=3.0,fontsize=10,loc='lower left')
 
 fig.set_size_inches(10,7)
 plt.savefig('paper/ddm_snr_win_comp.eps')

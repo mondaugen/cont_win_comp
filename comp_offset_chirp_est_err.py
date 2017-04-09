@@ -32,6 +32,14 @@ line_stys=['solid','dotted','dashed','dashdot']
 labels=['H','N4','N3','P5']
 sr_min=-30
 srs=np.arange(sr_min,10,30)
+
+# make colours
+cmap=plt.get_cmap('magma')
+clrs=[(x+1.)/float(len(srs)+1.) for x in xrange(len(srs))]
+clr_dict=dict()
+for clr, s in zip(clrs,srs):
+    clr_dict[s]=cmap(clr)
+
 n_diffs=40
 diffs=xrange(n_diffs)
 errs=dict()
@@ -48,8 +56,6 @@ for w in wins:
         errs[w][s]['diffs_params']['b0']=[0 for _ in diffs]
         errs[w][s]['diffs_params']['b1']=[0 for _ in diffs]
         errs[w][s]['diffs_params']['b2']=[0 for _ in diffs]
-
-cmap=plt.get_cmap('viridis')
 
 # Chirp creator
 cp2c=ddm.chirp_p2_creator(W_l_ms,F_s)
@@ -109,9 +115,12 @@ fig2,axs=plt.subplots(3,2,sharex=True)
 
 diffs_min=1000.
 diffs_max=-1000.
+diffs_min2=1000.
+diffs_max2=-1000.
+diff_extrem_margin=0.5
 for w,ls,lab in zip(wins,line_stys,labels):
     for s in srs:
-        clr=cmap((-1.*s+20.)/(-1.*float(sr_min)+20.))
+        clr=clr_dict[s]
         #print errs[w][s]['diffs_log']
         plt.figure(1)
         plt.plot(diffs,
@@ -124,9 +133,17 @@ for w,ls,lab in zip(wins,line_stys,labels):
         for plt_i,param_name in enumerate(['a0','a1','a2']):
             axs[plt_i,0].plot(diffs,
                 np.log10(errs[w][s]['diffs_params'][param_name]),c=clr,ls=ls,label=lab + ' $%d$ dB' % (s,))
+            if np.max(np.log10(errs[w][s]['diffs_params'][param_name])) > diffs_max2:
+                diffs_max2 =np.max(np.log10(errs[w][s]['diffs_params'][param_name])) 
+            if np.min(np.log10(errs[w][s]['diffs_params'][param_name])) < diffs_min2:
+                diffs_min2 = np.min(np.log10(errs[w][s]['diffs_params'][param_name]))
         for plt_i,param_name in enumerate(['b0','b1','b2']):
             axs[plt_i,1].plot(diffs,
                 np.log10(errs[w][s]['diffs_params'][param_name]),c=clr,ls=ls,label=lab + ' $%d$ dB' % (s,))
+            if np.max(np.log10(errs[w][s]['diffs_params'][param_name])) > diffs_max2:
+                diffs_max2 = np.max(np.log10(errs[w][s]['diffs_params'][param_name]))
+            if np.min(np.log10(errs[w][s]['diffs_params'][param_name])) < diffs_min2:
+                diffs_min2 = np.min(np.log10(errs[w][s]['diffs_params'][param_name]))
 
 phs_poly_param_items=[('a_{0,0}','a_{0,0}','a_{1,0}','a_{1,0}'),('a_{0,1}','a_{0,1}','a_{1,1}','a_{1,1}'),('a_{0,2}','a_{0,2}','a_{1,2}','a_{1,2}')]
 re_param_names=['mean$\{(\Re\{\hat{%s}\}-\Re\{%s\})^2+(\Re\{\hat{%s}\}-\Re\{%s\})^2\}$' % s_ for s_ in phs_poly_param_items]
@@ -135,15 +152,18 @@ for plt_i,param_name in enumerate(re_param_names):
     axs[plt_i,0].set_title(param_name,fontsize=10)
     axs[plt_i,0].set_ylabel('$\log_{10}$ MSE')
     axs[plt_i,0].set_xlim([0,n_diffs-1])
+    axs[plt_i,0].set_ylim([diffs_min2-diff_extrem_margin,diffs_max2+diff_extrem_margin])
+
 
 for plt_i,param_name in enumerate(im_param_names):
     axs[plt_i,1].set_title(param_name,fontsize=10)
     axs[plt_i,1].set_xlim([0,n_diffs-1])
+    axs[plt_i,1].set_ylim([diffs_min2-diff_extrem_margin,diffs_max2+diff_extrem_margin])
 
 axs[2,0].set_xlabel('Difference between maxima in bins')
 axs[2,1].set_xlabel('Difference between maxima in bins')
 
-axs[2,1].legend(fontsize=10)
+axs[0,1].legend(handlelength=3.0,fontsize=10)
 fig2.suptitle(
     'Average parameter estimation error variance for mixture of 2 components',
     # hacky way to get title size
