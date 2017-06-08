@@ -1,2 +1,3 @@
 \newcommand{\Koffset}{10}
 \newcommand{\Doffset}{40}
+\newcommand{\Dstep}{0.25}

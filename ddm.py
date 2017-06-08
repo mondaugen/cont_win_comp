@@ -457,6 +457,7 @@ def p2_1_3_est(x,ch,kma0,w_name='hann',F_s=16000,R=3):
     Returns:
 
         A tuple containing the absolute error for each parameter.
+        A tuple containing the estimated parameters.
     """
     # Generate window
     w,dw=w_dw_sum_cos(len(x),w_name,norm=False)
@@ -485,7 +486,8 @@ def p2_1_3_est(x,ch,kma0,w_name='hann',F_s=16000,R=3):
     b0_err=min([(ch.b0-b0_)%(2.*np.pi),(b0_-ch.b0)%(2.*np.pi)])
     b1_err=min([(ch.b1-b1_)%(np.pi*F_s),(b1_-ch.b1)%(np.pi*F_s)])
     b2_err=np.abs(ch.b2-b2_)
-    return (a0_err,a1_err,a2_err,b0_err,b1_err,b2_err)
+    return ((a0_err,a1_err,a2_err,b0_err,b1_err,b2_err),
+                (a0_,a1_,a2_,b0_,b1_,b2_))
 
 def psw_design(N,W):
     """
@@ -604,3 +606,11 @@ def crlb_pq(a,t,sig2):
     # Return diagonal of inverse
     return np.diag(np.linalg.inv(F))
 
+def localmax(x):
+    """
+    Returns local maxima of x and the mask used to get them. Includes endpoints
+    even though not necessarily local maxima.
+    """
+    x=np.array(x).flatten()
+    xmask=np.r_[True,(x[1:]>x[:-1])[:-1]&(x[:-1]>x[1:])[1:],True]
+    return (x[xmask],xmask)

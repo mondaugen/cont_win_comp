@@ -32,6 +32,7 @@ resolution atoms for the Distribution Derivative Method}
 \usepackage{color}
 \usepackage{cite}
 
+
 \setcounter{page}{1}
 \ninept
 
@@ -75,6 +76,16 @@ resolution atoms for the Distribution Derivative Method}
   % hyperrefs are active in the pdf file after conversion
   \usepackage[figure,table]{hypcap}
 \fi
+
+% Flowchart drawing stuff
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\tikzstyle{startstop} = [rectangle,draw=black,text centered]%, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text
+centered, draw=black, text width=3cm]
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
 
 \title{\papertitle}
 
@@ -482,7 +493,8 @@ linear algebra routine \cite[p.~585]{golub1996matrix}.
 \caption{\label{fig:mixwincomp} The mean squared estimation error for each
     parameter in an analysis of two components in mixture. A set of
     $K_{2}=\Koffset{}$ chirps was synthesized and each unique pair used for
-    maximum bin differences $0 \leq d < \Doffset{}$. The signal power ratio
+    maximum bin differences $0 \leq d < \Doffset{}$, with $d$ varied in
+    $\Dstep{}$ bin increments. Only local maxima are plotted for clarity. The signal power ratio
     between components is indicated with colours and the corresponding ratio in decibels is indicated in the
     plot legend. The names indicate the windows used to generate the atoms for
     estimation: \textit{N3} and \textit{N4} are the 3- and 4-cosine-term
@@ -562,9 +574,38 @@ used to synthesize the atoms as described in Sec.~\ref{sec:designingatoms} and
 their estimation error variance was compared (see
 Fig.~\ref{fig:snrwincomp}). After performing the DFT to obtain inner products
 with the atoms, the three atoms whose inner products were greatest were used in
-the estimations, i.e., $R=3$ in Eq.~\ref{eq:ddmsyseq}. We see that windows with
-lower sidelobes exhibit the lowest possible error variance at the sacrifice of
-some estimator efficiency.
+the estimations, i.e., $R=3$ in Eq.~\ref{eq:ddmsyseq}. The windows with the
+lowest sidelobes only give the lowest error variance at very favourable SNRs, at
+real-world SNRs the original Hann window still performs best at estimating the
+parameters of a single component signal.
+
+\begin{tikzpicture}[node distance=2cm]
+
+    \node (start) [process] {Synthesize $K_{2}$ single-component signals};
+    \node (modulate) [process, below of=start] {Modulate down so peak bin is at frequency 0 for all signals};
+    \node (setd) [process, below of=modulate] {Set $d=0$};
+    \node (choosepair) [process, below of=setd] {Choose pair of signals};
+    \node (scaleone) [process, below of=choosepair] {Scale one in the pair to give desired power and peak bin according to $d$};
+    \node (addpair) [process, below of=scaleone] {Add pair together};
+    \node (tryestimate1) [process, below of=addpair] {Try estimating parameters of component with atoms at bins $\{-1,0,1\}$};
+    \node (tryestimate2) [process, below of=tryestimate1] {Try estimating parameters of component with atoms at bins $\{\hat{d}-1,\hat{d},\hat{d}+1\}$};
+    \node (sumerrs) [process, below of=tryestimate2] {Sum estimation errors of
+    each parameter and divide by $K_{2}(K_{2}-1)$};
+    \node (incd) [process, below of=sumerrs] {Increment $d$ by $\Dstep{}$ unless $d=\Doffset$};
+
+    \draw [arrow] (start) -- (modulate);
+    \draw [arrow] (modulate) -- (setd);
+    \draw [arrow] (setd) -- (choosepair);
+    \draw [arrow] (choosepair) -- (scaleone);
+    \draw [arrow] (scaleone) -- (addpair);
+    \draw [arrow] (addpair) -- (tryestimate1);
+    \draw [arrow] (tryestimate1) -- (tryestimate2);
+    \draw [arrow] (tryestimate2) -- (sumerrs);
+    \draw [arrow] (sumerrs) -- (incd);
+    \draw [arrow] (incd) -- node[anchor=east,above]{} (choosepair);
+
+
+\end{tikzpicture}
 
 To evaluate the performance of the various windows when estimating the
 parameters of components in mixture we synthesized signals using
@@ -585,8 +626,9 @@ chirps were selected from $\mathcal{C}$ and one chirp was modulated by
 $\exp(2\pi \frac{n d}{N}\sqrt{-1})$ for $0 \leq n < N$ in order to give the
 desired difference between maxima. This component was also scaled by a constant
 to give a desired signal power ratio with the other component (the power ratios
-tested were 0 dB and -30 dB). The parameters of
-both components were estimated using the bins surrounding $r=0$ and $r=d$ for
+tested were 0 dB and -30 dB). Because the estimation must use valid atom
+indices, $d$ was rounded to the nearest integer $\hat{d}$. The parameters of
+both components were estimated using the bins surrounding $r=0$ and $r=\hat{d}$ for
 each component respectively and the squared estimation error for each parameter
 was summed and divided by $K_{2}(K_{2}-1)$ (the number of choices of two unique
 components) to give the averaged squared estimation error for each parameter at
