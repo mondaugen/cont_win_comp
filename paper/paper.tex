@@ -31,6 +31,7 @@ resolution atoms for the Distribution Derivative Method}
 \usepackage{subfig} % or can use subcaption package
 \usepackage{color}
 \usepackage{cite}
+\usepackage{float}
 
 
 \setcounter{page}{1}
@@ -79,13 +80,15 @@ resolution atoms for the Distribution Derivative Method}
 
 % Flowchart drawing stuff
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows}
+\usetikzlibrary{shapes.geometric, arrows, positioning, calc}
 \tikzstyle{startstop} = [rectangle,draw=black,text centered]%, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
 \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
-\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=0cm, text
 centered, draw=black, text width=3cm]
+\tikzstyle{emptybox} = []
 \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
 \tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzstyle{noarrow} = [thick,-,>=stealth]
 
 \title{\papertitle}
 
@@ -121,9 +124,8 @@ centered, draw=black, text width=3cm]
     } %
 \\ McGill University %
 \\ Montreal, Quebec, Canada \\
-{\tt %
+\tt %
 \href{mailto:philippe.depalle@mcgill.ca}{philippe.depalle@mcgill.ca}}
-}
 
 \input{ddm_snr_win_comp_defs.txt}
 \input{comp_offset_chirp_est_err_defs.txt}
@@ -179,13 +181,15 @@ The frequency
 modulation information has also been used in the
 regularization of mathematical programs for audio source separation \cite{creager2016musicalsource}.
 
-The sinusoidal model typically considered is
+The sinusoidal model approximating signal $s$ typically considered is
 %
 \begin{equation}
     \label{eq:polyphaseexp}
-    s(t) = \exp(a_0 + \sum_{j=1}^{Q} a_j t^j) + \eta(t)
+    \tilde{s}(t) = \exp(a_0 + \sum_{q=1}^{Q} a_{q} t^q) + \eta(t)
 \end{equation}
-where $\eta(t)$ is white Gaussian noise.
+where $\tilde{s}$ is the approximating signal, $t$ the variable of time, the
+$a_{q} \in \mathbb{C}$ coefficients of the argument's polynomial, and $\eta(t)$
+white Gaussian noise.
 %
 Although this technique can be extended to describe a single sinusoid of
 arbitrary complexity simply by increasing $Q$, it remains essential to consider
@@ -193,14 +197,14 @@ signals featuring a sum of $P$ such components, whether they represent the harmo
 %
 \begin{equation}
     \label{eq:polyphaseexpmix}
-    x(t) = \sum_{i=1}^{P} x_{i}(t) + \eta(t)
+    x(t) = \sum_{p=1}^{P} x_{p}(t) + \eta(t)
 \end{equation}
 %
 with
 %
-\[
-    x_{i}(t) = \exp(a_{i,0} + \sum_{j=1}^{Q} a_{i,j} t^j)
-\]
+\begin{equation}
+    x_{p}(t) = \exp(a_{p,0} + \sum_{q=1}^{Q} a_{p,q} t^q)
+\end{equation}
 %
 As regards the design and evaluation of signal-derivatives analysis techniques,
 previous work has generally assumed signals containing a single component, i.e.,
@@ -211,33 +215,33 @@ analysis methods applied to a single-component signal. In
 \cite{robel2002estimating} the extent to which two components in mixture can
 corrupt estimations of the frequency slope ($\Im\{a_{0,2}\}$ and
 $\Im\{a_{1,2}\}$) is investigated in the context of the reassignment method, one
-of the ``signal-derivatives'' techniques, but the corruption of the other
+of the signal-derivatives techniques, but the corruption of the other
 parameters is not considered.
 
 In this paper, we revisit the quality of signal-derivatives estimation of
-\textit{all} the $a_{j}$ when analyzing a \textit{mixture} of components. We focus on
+\textit{all} the $a_{q}$ when analyzing a \textit{mixture} of components. We focus on
 the DDM \cite{betser2009sinusoidal} analysis method for its convenience as it
 can simply be considered as an atomic decomposition (see
 Sec.~\ref{sec:estimating_aj}), and does not require computing derivatives
 of the signal to be analysed.
 
-DDM does, however, require a once-differentiable analysis window. As we are
+The DDM does, however, require a once-differentiable analysis window. As we are
 interested in windows with lower sidelobes in order to better estimate
 parameters of sinusoidal chirp signals in mixture, we seek windows that
 combine these two properties. For this, a technique to design
 once-differentiable approximations to arbitrary symmetrical windows is proposed
 and presented along with a design example for a high-performance window. Finally
 we evaluate the performance of various once-differentiable windows in estimating
-the $a_{j}$.
+the $a_{q}$.
 
-\section{Estimating the \lowercase{$a_{j}$}}
+\section{Estimating the parameters \lowercase{$a_{q}$}}
 \label{sec:estimating_aj}
-We will now show briefly how the DDM can be used to estimate the $a_j$. Based on
+We will now show briefly how the DDM can be used to estimate the $a_{q}$. Based on
 the theory of distributions \cite{schwartz1959theorie}, the DDM
 makes use of ``test
 functions'' or atoms $\psi$. These atoms must be once differentiable with
 respect to time variable $t$ and be non-zero only on a finite interval
-$[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$. First, we define
+$[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$. First, we define the inner product
 %
 \begin{equation}
     \label{eq:ddm:inner:prod:def}
@@ -247,15 +251,15 @@ $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$. First, we define
 %
 and the operator 
 %
-\[
+\begin{equation}
 \mathcal{T}^{\alpha} : (\mathcal{T}^{\alpha}x)(t) = t^{\alpha}x(t)
-\]
+\end{equation}
 %
 Consider the weighted signal
 %
-\[
+\begin{equation}
     f(t) = x(t) \overline{\psi}(t)
-\]
+\end{equation}
 %
 differentiating with respect to $t$ we obtain
 %
@@ -264,64 +268,64 @@ differentiating with respect to $t$ we obtain
     \frac{df}{dt}(t) = 
     \frac{dx}{dt}(t)\overline{\psi}(t)
     + x(t)\frac{d\overline{\psi}}{dt}(t) = \\
-    \left( \sum_{j=1}^{Q} j a_j t^{j-1} \right) x(t)\overline{\psi}(t)
+    \left( \sum_{q=1}^{Q} q a_{q} t^{q-1} \right) x(t)\overline{\psi}(t)
     + x(t)\frac{d\overline{\psi}}{dt}(t)
 \end{multline}
 %
 Because $\psi$ is zero outside of the interval $[-\frac{L_{t}}{2},\frac{L_{t}}{2}]$, integrating
 $\frac{df}{dt}(t)$ we obtain
 %
-\begin{multline*}
+\begin{multline}
     \int_{-\infty}^{\infty}\frac{df}{dt}(t)dt = \\
-    \sum_{j=1}^{Q} j a_j \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} t^{j-1} x(t) \overline{\psi}(t) dt
+    \sum_{q=1}^{Q} q a_{q} \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}} t^{q-1} x(t) \overline{\psi}(t) dt
     + \left\langle x, \frac{d\overline{\psi}}{dt} \right\rangle = 0
-\end{multline*}
+\end{multline}
 %
 or, using the operator $\mathcal{T}^{\alpha}$,
 %
-\[ 
-    \sum_{j=1}^{Q} j a_j 
-    \left\langle \mathcal{T}^{j-1} x , \overline{\psi} \right\rangle
+\begin{equation} 
+    \sum_{q=1}^{Q} q a_{q} 
+    \left\langle \mathcal{T}^{q-1} x , \overline{\psi} \right\rangle
     = -\left\langle x, \frac{d\overline{\psi}}{dt} \right\rangle
-\]
+\end{equation}
 %
 
-Estimating coefficients $a_j$, ${1 < j \leq Q}$,
+Estimating coefficients $a_{q}$, ${1 < q \leq Q}$,
 simply requires $R$ atoms with $R \geq Q$ to solve the linear system of
 equations
 \begin{equation}
     \label{eq:ddmsyseq}
-    \sum_{j=1}^{Q} j a_j 
-    \left\langle \mathcal{T}^{j-1} x , \overline{\psi}_{r} \right\rangle
+    \sum_{q=1}^{Q} q a_{q} 
+    \left\langle \mathcal{T}^{q-1} x , \overline{\psi}_{r} \right\rangle
     = -\left\langle x, \frac{d\overline{\psi}_{r}}{dt} \right\rangle
 \end{equation}
 for $1 \leq r \leq R$.
 
 To estimate $a_0$ we rewrite the signal we are analysing as
-\[
+\begin{equation}
     x(t) = \exp(a_0) \gamma(t) + \epsilon (t)
-\]
+\end{equation}
 where $\epsilon (t)$ is the error signal, the part of the signal that is not explained
 by our model, and $\gamma (t)$ is the part of the signal
 whose coefficients have already been estimated, i.e.,
-\[
-    \gamma(t) = \exp \left( \sum_{j=1}^{Q} a_j t^{j} \right)
-\]
+\begin{equation}
+    \gamma(t) = \exp \left( \sum_{q=1}^{Q} a_{q} t^{q} \right)
+\end{equation}
 Computing the inner product $\left\langle x , \gamma \right\rangle$, we have
-\[
+\begin{equation}
     \left\langle x , \gamma \right\rangle
     =
     \left\langle \exp(a_0) \gamma , \gamma \right\rangle + 
         \left\langle \epsilon , \gamma \right\rangle
-\]
+\end{equation}
 The inner product between $\epsilon$ and $\gamma$ is $0$, by the orthogonality
 principle \cite[ch.~12]{kay1993fundamentals}. Furthermore, because $\exp(a_0)$ does not
 depend on $t$, we have
-\[
+\begin{equation}
     \left\langle x , \gamma \right\rangle
     =
     \exp(a_0) \left\langle \gamma , \gamma \right\rangle
-\]
+\end{equation}
 so we can estimate $a_0$ as
 \begin{equation}
     \label{eq:ddmesta0}
@@ -329,44 +333,50 @@ so we can estimate $a_0$ as
         - \log \left( \left\langle \gamma , \gamma \right\rangle \right)
 \end{equation}
 
-\section{Estimating the \lowercase{$a_{i,j}$} of $P$ components}
+As will be seen in subsequent sections, the DDM typically involves taking the
+discrete Fourier transform (DFT) of the signal windowed by both an everywhere once-differentiable function of
+finite support (e.g., the Hann window) and this function's derivative. A small
+subset of atoms corresponding to the peak bins in the DFT are used in
+Eq.~\ref{eq:ddmsyseq} to solve for the parameters $a_{q}$.
 
-We examine how the mixture model influences the estimation of the $a_{i,j}$ in
+\section{Estimating the \lowercase{$a_{p,q}$} of $P$ components}
+
+We examine how the mixture model influences the estimation of the $a_{p,q}$ in
 Eq.~\ref{eq:polyphaseexpmix}.
 Consider a mixture of $P$ components.
 If we define the weighted signal sum
 %
-\[
-    g(t) = \sum_{i=1}^{P} x_{i}(t) \overline{\psi}(t) = \sum_{i=1}^{P} f_{i}(t)
-\]
+\begin{equation}
+    g(t) = \sum_{p=1}^{P} x_{p}(t) \overline{\psi}(t) = \sum_{p=1}^{P} f_{p}(t)
+\end{equation}
 %
 and substitute $g$ for $f$ in Eq.~\ref{eq:ddm:weighted:sig:derivative} we obtain
 %
 \begin{multline}
     \label{eq:mixest}
-    \sum_{i=1}^{P} \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}}
-    \frac{df_{i}}{dt}(t)dt =
+    \sum_{p=1}^{P} \int_{-\frac{L_{t}}{2}}^{\frac{L_{t}}{2}}
+    \frac{df_{p}}{dt}(t)dt =
     0
     = \\ 
-    \sum_{i=1}^{P} \left(
-    \sum_{j=1}^{Q} j a_{i,j} 
-    \left\langle \mathcal{T}^{j-1} x_i , \overline{\psi} \right\rangle
+    \sum_{p=1}^{P} \left(
+    \sum_{q=1}^{Q} q a_{p,q} 
+    \left\langle \mathcal{T}^{q-1} x_i , \overline{\psi} \right\rangle
     + \left\langle x_i, \frac{d\overline{\psi}}{dt} \right\rangle \right)
 \end{multline}
 %
-From this we see if $\left\langle \mathcal{T}^{j-1} x_i , \overline{\psi}_{r}
+From this we see if $\left\langle \mathcal{T}^{q-1} x_i , \overline{\psi}_{r}
 \right\rangle$ and $\left\langle x_i, \frac{d\overline{\psi_{r}}}{dt} \right\rangle$
-are small for all but $i = i^{\ast}$ and a subset of $R$ atoms, we
-can simply estimate the parameters $a_{i^{\ast},j}$ using
-\[
-    \sum_{j=1}^{Q} j a_{{i^{\ast}},j} 
-    \left\langle \mathcal{T}^{j-1} x_{i^{\ast}} , \overline{\psi}_{r} \right\rangle
-    = -\left\langle x_{i^{\ast}}, \frac{d\overline{\psi}_{r}}{dn} \right\rangle
-\]
-for $1 \leq r \leq R$. To compute $a_{i^{\ast},0}$ we simply use
-\[
-    \gamma_{i^{\ast}}(t) = \exp \left( \sum_{j=1}^{Q} a_{i^{\ast},j} t^{j} \right)
-\]
+are small for all but $p = p^{\ast}$ and a subset of $R$ atoms, we
+can simply estimate the parameters $a_{p^{\ast},q}$ using
+\begin{equation}
+    \sum_{q=1}^{Q} q a_{{p^{\ast}},q} 
+    \left\langle \mathcal{T}^{q-1} x_{p^{\ast}} , \overline{\psi}_{r} \right\rangle
+    = -\left\langle x_{p^{\ast}}, \frac{d\overline{\psi}_{r}}{dn} \right\rangle
+\end{equation}
+for $1 \leq r \leq R$. To compute $a_{p^{\ast},0}$ we simply use
+\begin{equation}
+    \gamma_{p^{\ast}}(t) = \exp \left( \sum_{q=1}^{Q} a_{p^{\ast},q} t^{q} \right)
+\end{equation}
 in place of $\gamma$ in Eq.~\ref{eq:ddmesta0}.
 
 \section{Designing the $\psi_{r}$}
@@ -381,24 +391,25 @@ prolate window.}
 \end{figure*}
 %
 In practice, an approximation of Eq.~\ref{eq:ddm:inner:prod:def} is evaluated using
-the discrete Fourier transform (DFT) on a signal $x$ that is properly sampled
-and so can be evaluated at a finite number of points $nT$ with $n \in [0,N-1]$ and
+the DFT on a signal $x$ that is properly sampled
+and so can be evaluated at a finite number of time-points $nT$ with $n \in [0,N-1]$ and
 $T$ the sample period in seconds. In this way, the chosen atoms $\psi_{\omega}(t)$ 
 are the products of the elements of the Fourier basis and an appropriately
 chosen window $w$ that is once differentiable and finite, i.e.,
 %
-\[
-    \psi_{\omega}(t) = w(t) \exp(-\sqrt{-1} \omega t)
-\]
+\begin{equation}
+    \label{eq:fourieratom}
+    \psi_{\omega}(t) = w(t) \exp(-j \omega t)
+\end{equation}
 %
-Defining $N = \frac{L_{t}}{T}$ and $\omega = 2
-\pi \frac{r}{N}$, the approximate
-inner product is then
+Defining $N = \frac{L_{t}}{T}$ and angular frequency at bin $r$ as $\omega = 2
+\pi \frac{r}{N}$, the approximate inner product is then
 %
-\[
+\begin{equation}
+    \label{eq:approxinnerprod}
     \left\langle x , \psi_{\omega} \right\rangle \approx 
-    \sum_{n=0}^{N-1} x(Tn) w(Tn) \exp(-2 \pi \sqrt{-1} r \frac{n}{N}) 
-\]
+    \sum_{n=0}^{N-1} x(Tn) w(Tn) \exp(-2 \pi j r \frac{n}{N}) 
+\end{equation}
 %
 i.e., the definition of the DFT of a windowed signal%
 \footnote{%
@@ -414,11 +425,11 @@ i.e., the definition of the DFT of a windowed signal%
 }. %
 The DFT is readily interpreted as a bank of bandpass filters centred at
 normalized frequencies%
-\footnote{%
-In this article as in much of the literature on signal processing the index $r$
-of the Fourier basis element corresponding to the frequency $\omega_{r} = 2 \pi
-\frac{r}{N}$ will be referred to as its bin number.
-}
+%\footnote{%
+%In this article as in much of the literature on signal processing the index $r$
+%of the Fourier basis element corresponding to the frequency $\omega_{r} = 2 \pi
+%\frac{r}{N}$ will be referred to as its bin number.
+%}
 $\frac{r}{N}$ and with frequency response described by the Fourier transform of
 modulated $w$ \cite{allen1977unified}. Therefore choosing $\psi$ amounts to a
 filter design problem under the constraints that the impulse response of the
@@ -456,32 +467,32 @@ straightforward way. In \cite{harris1978use} and \cite{rabiner1970approach} it
 is shown how to design optimal windows of length $N$ samples using a linear
 combination of $M$ harmonically related cosines
 \begin{equation}
-    w(n) = \sum_{k=0}^{M-1} b_{k} \cos (2 \pi k \frac{n}{N})
+    \tilde{w}(n) = \sum_{k=0}^{M-1} b_{k} \cos (2 \pi k \frac{n}{N})
 \mathcal{R}(\frac{n}{N})
 \end{equation}
 where $\mathcal{R}$ is the \textit{rectangle function}. This function is
 discontinuous
 at $n = \frac{\pm N}{2}$, and therefore not differentiable there, unless
-\[
+\begin{equation}
 \sum_{k=0}^{M-1} b_{k} \cos ( \pm \pi k ) = 0
-\]
+\end{equation}
 
 Rather than design based on an optimality criterion, such as the height of the
 highest sidelobe \cite{rabiner1970approach}, a once-differentiable approximation
-to an existing window $v$ is desired. To do this, we choose the $b_{k}$ so that
-the window $w$'s squared approximation error to $v$ is minimized while having
-$w(\frac{\pm N}{2}) = 0$, i.e. we find the solution $\{ b^{\ast}_{k} \}$ to the
+to an existing window $w$ is desired. To do this, we choose the $b_{k}$ so that
+the window $\tilde{w}$'s squared approximation error to $w$ is minimized while having
+$\tilde{w}(\frac{\pm N}{2}) = 0$, i.e. we find the solution $\{ b^{\ast}_{k} \}$ to the
 mathematical program
 \begin{equation}
     \label{eq:searchcontwinprogram}
     \text{minimize}
-    \sum_{n=0}^{N-1} ( v(n) 
+    \sum_{n=0}^{N-1} ( w(n) 
         - \sum_{k=0}^{M-1} b_{k} \cos(2 \pi k \frac{n}{N}))^{2}
 \end{equation}
-\[
+\begin{equation}
     \text{subject to} \\
     \sum_{k=0}^{M-1} b_{k} \cos(\pi k ) = 0
-\]
+\end{equation}
 which can be solved using constrained least-squares; a standard numerical
 linear algebra routine \cite[p.~585]{golub1996matrix}.
 
@@ -494,7 +505,7 @@ linear algebra routine \cite[p.~585]{golub1996matrix}.
     parameter in an analysis of two components in mixture. A set of
     $K_{2}=\Koffset{}$ chirps was synthesized and each unique pair used for
     maximum bin differences $0 \leq d < \Doffset{}$, with $d$ varied in
-    $\Dstep{}$ bin increments. Only local maxima are plotted for clarity. The signal power ratio
+    $\Dstep{}$ bin increments. The signal power ratio
     between components is indicated with colours and the corresponding ratio in decibels is indicated in the
     plot legend. The names indicate the windows used to generate the atoms for
     estimation: \textit{N3} and \textit{N4} are the 3- and 4-cosine-term
@@ -564,6 +575,8 @@ because it is once-differentiable at all points in its domain.
 
 \section{The performance of improved windows}
 
+\subsection{Signals with single component}
+
 To compare the average estimation error variance with the
 theoretical minimum given by the Cram\'{e}r-Rao bound we synthesized $K_{1}$ random
 chirps using Eq.~\ref{eq:polyphaseexp}
@@ -579,33 +592,60 @@ lowest sidelobes only give the lowest error variance at very favourable SNRs, at
 real-world SNRs the original Hann window still performs best at estimating the
 parameters of a single component signal.
 
-\begin{tikzpicture}[node distance=2cm]
+\begin{figure}[H]
+    \centering
+            \begin{tikzpicture}[node distance=0.25cm]
+                \node (start) [process] at (0,0) {Synthesize $K_{2}$ single-component signals};
+                \node (modulate) [process, below = of start] {Modulate so that peak bin is at frequency 0 for all signals};
+                \node (setd) [process, below = of modulate] {Set $d=0$};
+                \node (choosepair) [process, below = of setd] {Choose
+                    $K_{2}(K_{2}-1)$ pairs of signals};
+                \node (dum1) [emptybox, right = of choosepair] {};
+                \node (scaleone) [process, below = of choosepair] {Scale one in
+                each pair to give desired power and modulate to peak bin according to $d$};
+                \node (addpair) [process, below = of scaleone] {Add each pair together};
+                \node (tryestimate1) [process, below = of addpair] {For each
+                pair, try
+                estimating parameters of unmodulated component with atoms at bins $\{-1,0,1\}$};
+                \node (tryestimate2) [process, below = of tryestimate1] {For
+                each pair, try
+                estimating parameters of modulated component with atoms at bins $\{d-1,d,d+1\}$};
+                \node (sumerrs) [process, below = of tryestimate2] {Sum estimation errors of
+                each parameter and divide by $K_{2}(K_{2}-1)$};
+                \node (incd) [process, below = of sumerrs] {Increment $d$ by
+                $\Delta_{d}$};
+                \node (dum2) [emptybox, right = of incd] {};
+                \node (dum3) [emptybox, below = of incd] {};
+                \node (dum3b) [emptybox, left = of incd] {};
+                \node (dum4) [emptybox] at (dum3b |- dum3) {};
+%                \node let \p{dum3b}=(dum3b), \p{dum3}=(dum3) in (dum4) [emptybox] at (\x{dum3b},\y{dum3}) {};
+                \node (dum5) [emptybox, left = of setd] {};
 
-    \node (start) [process] {Synthesize $K_{2}$ single-component signals};
-    \node (modulate) [process, below of=start] {Modulate down so peak bin is at frequency 0 for all signals};
-    \node (setd) [process, below of=modulate] {Set $d=0$};
-    \node (choosepair) [process, below of=setd] {Choose pair of signals};
-    \node (scaleone) [process, below of=choosepair] {Scale one in the pair to give desired power and peak bin according to $d$};
-    \node (addpair) [process, below of=scaleone] {Add pair together};
-    \node (tryestimate1) [process, below of=addpair] {Try estimating parameters of component with atoms at bins $\{-1,0,1\}$};
-    \node (tryestimate2) [process, below of=tryestimate1] {Try estimating parameters of component with atoms at bins $\{\hat{d}-1,\hat{d},\hat{d}+1\}$};
-    \node (sumerrs) [process, below of=tryestimate2] {Sum estimation errors of
-    each parameter and divide by $K_{2}(K_{2}-1)$};
-    \node (incd) [process, below of=sumerrs] {Increment $d$ by $\Dstep{}$ unless $d=\Doffset$};
+                \draw [arrow] (start) -- (modulate);
+                \draw [arrow] (modulate) -- (setd);
+                \draw [arrow] (setd) -- (choosepair);
+                \draw [arrow] (choosepair) -- (scaleone);
+                \draw [arrow] (scaleone) -- (addpair);
+                \draw [arrow] (addpair) -- (tryestimate1);
+                \draw [arrow] (tryestimate1) -- (tryestimate2);
+                \draw [arrow] (tryestimate2) -- (sumerrs);
+                \draw [arrow] (sumerrs) -- (incd);
+                \draw [noarrow] (incd) -- (dum2.center);
+                \draw [noarrow] (dum2.center) -- node [anchor=west,text
+                width=2cm,minimum width=3cm] {If $d < D$} (dum1.center) ;
+                \draw [arrow]   (dum1.center) -- (choosepair);
 
-    \draw [arrow] (start) -- (modulate);
-    \draw [arrow] (modulate) -- (setd);
-    \draw [arrow] (setd) -- (choosepair);
-    \draw [arrow] (choosepair) -- (scaleone);
-    \draw [arrow] (scaleone) -- (addpair);
-    \draw [arrow] (addpair) -- (tryestimate1);
-    \draw [arrow] (tryestimate1) -- (tryestimate2);
-    \draw [arrow] (tryestimate2) -- (sumerrs);
-    \draw [arrow] (sumerrs) -- (incd);
-    \draw [arrow] (incd) -- node[anchor=east,above]{} (choosepair);
+                \draw [noarrow] (incd) -- (dum3.center);
+                \draw [noarrow] (dum3.center) -- (dum4.center);
+                \draw [noarrow] (dum4.center) -- node [anchor=east,text width=2cm,minimum width=2cm] {If
+                signal power ratios remaining} (dum5.center);
+                \draw [arrow] (dum5.center) -- (setd);
+            \end{tikzpicture}
+    \caption{The evaluation procedure for 2-component
+    signals.\label{fig:2cevalflowchart}}
+\end{figure}
 
-
-\end{tikzpicture}
+\subsection{Signals with 2 components}
 
 To evaluate the performance of the various windows when estimating the
 parameters of components in mixture we synthesized signals using
@@ -620,19 +660,25 @@ Test signals were obtained by choosing a pair of unique components from this set
 and modulating one to give the desired difference.  This was carried out as
 follows: the atom $r^{\ast}$ for which the inner product was maximized was
 determined for each unmixed chirp and the chirp was modulated by $\exp(-2\pi
-\frac{r^{\ast} n}{N}\sqrt{-1})$ for $0 \leq n < N$ in order to move this maximum
+\frac{r^{\ast} n}{N}j)$ for $0 \leq n < N$ in order to move this maximum
 to $r=0$. Then for each desired difference $d$, with $0 \leq d < D$, two unique
 chirps were selected from $\mathcal{C}$ and one chirp was modulated by
-$\exp(2\pi \frac{n d}{N}\sqrt{-1})$ for $0 \leq n < N$ in order to give the
+$\exp(2\pi \frac{n d}{N}j)$ for $0 \leq n < N$ in order to give the
 desired difference between maxima. This component was also scaled by a constant
 to give a desired signal power ratio with the other component (the power ratios
-tested were 0 dB and -30 dB). Because the estimation must use valid atom
-indices, $d$ was rounded to the nearest integer $\hat{d}$. The parameters of
-both components were estimated using the bins surrounding $r=0$ and $r=\hat{d}$ for
-each component respectively and the squared estimation error for each parameter
-was summed and divided by $K_{2}(K_{2}-1)$ (the number of choices of two unique
-components) to give the averaged squared estimation error for each parameter at
-each difference $d$.
+tested were 0 dB and -30 dB). As we assume perfect peak-atom selection for this
+evaluation no inner-product maximizing $r^{\ast}$ is chosen, rather atoms with
+angular frequencies $\omega=2\pi\frac{\hat{d}}{N}$ for $\hat{d} \in
+\{d-1,d,d+1\}$ in Eq.~\ref{eq:fourieratom} (again, $R=3$) were chosen to carry
+out the estimation. $d$ was incremented by $\Delta_{d} = \Dstep{}$ and so
+$\hat{d}$ was not generally integral valued in this case. The parameters of the
+unmodulated component were estimated using angular frequencies
+$\omega=2\pi\frac{\hat{d}}{N}$ for $\hat{d} \in\{-1,0,1\}$ in
+Eq.~\ref{eq:fourieratom}. The squared
+estimation error for each parameter was summed and divided by $K_{2}(K_{2}-1)$
+(the number of choices of two unique components) to give the averaged squared
+estimation error for each parameter at each difference $d$. The procedure is
+summarized in Fig.~\ref{fig:2cevalflowchart}.
 
 The behaviour of the windows when used to analyse mixtures of non-stationary
 signals is similar to the behaviour of windows used for harmonic analysis in the
@@ -662,11 +708,13 @@ assumption when components have roughly disjoint sets of atoms for which their
 inner products take on large values. This indicates the need for windows whose
 Fourier transform exhibits low sidelobes. We developed windows whose sidelobes
 are minimized while remaining everywhere once-differentiable: a requirement to
-generate valid atoms for the DDM. These windows were shown to improve parameter
-estimation of $P=1$ component in noise and $P=2$ components in mixture without
+generate valid atoms for the DDM. These windows were shown to only improve parameter
+estimation of $P=1$ component with argument-polynomial of order $Q=2$ in low
+amounts of noise. However, for $P=2$ components of the same order in mixture without
 noise, granted the components
 exhibited reasonable separation in frequency between the atoms for which the
-inner product was maximized.
+inner product was maximized, these new windows substantially improved the
+estimation of all but the first argument-polynomial coefficient.
 
 Further work should evaluate these windows on sinusoids of different orders,
 i.e., $Q \gg 1$. Optimal main-lobe widths for windows should be determined

@@ -165,6 +165,7 @@ for fignum in xrange(n_figs):
     axs[fignum].set_xlabel(fig_xlabels[fignum])
     axs[fignum].set_ylabel(fig_ylabels[fignum])
     axs[fignum].set_xscale(fig_xscales[fignum],**fig_xscales_kwargs[fignum])
+    axs[fignum].grid(ls='dotted')
 
 axs[1].legend(fontsize=10,handles=[leg_nuttall,leg_prolate,leg_aprx])
 figs.set_size_inches(10,4)

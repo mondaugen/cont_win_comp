@@ -11,6 +11,7 @@ plt.rc('text',usetex=True)
 plt.rc('font',**ddm.FONT_OPT['dafx'])
 
 show_plots=False
+localmax=False
 
 #warnings.simplefilter('error','RuntimeWarning')
 
@@ -93,7 +94,7 @@ for w in wins:
                     x=c1.x+c2_.x
                     try:
                         errs_1,params_1=ddm.p2_1_3_est(x,c1,0,w,F_s,R)
-                        errs_2,params_2=ddm.p2_1_3_est(x,c2_,np.round(d),w,F_s,R)
+                        errs_2,params_2=ddm.p2_1_3_est(x,c2_,d,w,F_s,R)
                     except TypeError:
                         nlsqerrs += 1
                         continue
@@ -145,7 +146,11 @@ for w,ls,lab in zip(wins,line_stys,labels):
             diffs_min = np.min(errs[w][s]['diffs_log'])
         plt.figure(2)
         for plt_i,param_name in enumerate(['a0','a1','a2']):
-            plotme,msk=ddm.localmax(errs[w][s]['diffs_params'][param_name])
+            if (localmax):
+                plotme,msk=ddm.localmax(errs[w][s]['diffs_params'][param_name])
+            else:
+                plotme,msk=(errs[w][s]['diffs_params'][param_name],
+                        np.arange(len(errs[w][s]['diffs_params'][param_name])))
             axs[plt_i,0].plot(diffs[msk],
                 np.log10(plotme),c=clr,ls=ls,label=lab + ' $%d$ dB' % (s,))
             if np.max(plotme) > diffs_max2:
@@ -153,7 +158,11 @@ for w,ls,lab in zip(wins,line_stys,labels):
             if np.min(plotme) < diffs_min2:
                 diffs_min2 = np.min(plotme)
         for plt_i,param_name in enumerate(['b0','b1','b2']):
-            plotme,msk=ddm.localmax(errs[w][s]['diffs_params'][param_name])
+            if (localmax):
+                plotme,msk=ddm.localmax(errs[w][s]['diffs_params'][param_name])
+            else:
+                plotme,msk=(errs[w][s]['diffs_params'][param_name],
+                        np.arange(len(errs[w][s]['diffs_params'][param_name])))
             axs[plt_i,1].plot(diffs[msk],
                 np.log10(plotme),c=clr,ls=ls,label=lab + ' $%d$ dB' % (s,))
             if np.max(plotme) > diffs_max2:
