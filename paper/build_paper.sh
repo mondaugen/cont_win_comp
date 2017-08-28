@@ -8,5 +8,5 @@ pdflatex paper.tex
 BIBINPUTS=. bibtex paper.aux
 pdflatex paper.tex
 pdflatex paper.tex
-mv paper.pdf Esterer_Nicholas_dafx_2017.pdf
+mv paper.pdf Esterer_Nicholas_dafx_2017_paper.pdf
 #dvipdf thesis.dvi

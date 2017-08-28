@@ -1,15 +1,3 @@
-% Template LaTeX file for DAFx-17 papers
-%
-% To generate the correct references using BibTeX, run
-%     latex, bibtex, latex, latex
-%
-% 1) Please compile using latex or pdflatex.
-% 2) If using pdflatex, you need your figures in a file format other than eps! e.g. png or jpg is working
-% 3) Please use "paperftitle" and "pdfauthor" definitions below
-
-%------------------------------------------------------------------------------------------
-%  !  !  !  !  !  !  !  !  !  !  !  ! user defined variables  !  !  !  !  !  !  !  !  !  !  !  !  !  !
-% Please use these commands to define title and author(s) of the paper:
 \def\papertitle{On the design and use of once-differentiable high dynamic
 resolution atoms for the Distribution Derivative Method}
 \def\paperauthorA{Nicholas Esterer}
@@ -92,40 +80,15 @@ centered, draw=black, text width=3cm]
 
 \title{\papertitle}
 
-%-------------SINGLE-AUTHOR HEADER STARTS (uncomment below if your paper has a single author)-----------------------
-%\affiliation{
-%\paperauthorA \,\sthanks{Thanks to the predecessors for the templates}}
-%{\href{http://www.acoustics.ed.ac.uk}{Acoustics and Audio Group,} \\ University of Edinburgh\\ Edinburgh, UK\\
-%{\tt \href{mailto:dafx17@ed.ac.uk}{dafx17@ed.ac.uk}}
-%}
-%-----------------------------------SINGLE-AUTHOR HEADER ENDS------------------------------------------------------
-
-%---------------TWO-AUTHOR HEADER STARTS (uncomment below if your paper has two authors)-----------------------
 \twoaffiliations{
 \paperauthorA \,}
-{\href{http://www.cirmmt.org/}{%Sound Processing and Control Laboratory
-        SPCL %
-        \sthanks{Sound Processing and Control Laboratory} \\%
-%        Centre for Interdisciplinary Research in Music Media and Technology
-        CIRMMT %
-        \sthanks{Centre for Interdisciplinary Research in Music Media and Technology}%
-    }
-\\ McGill University %
-\\ Montreal, Quebec, Canada \\
+{\href{https://mt.music.mcgill.ca/spcl}{SPCL\sthanks{Sound Processing and Control Laboratory}} \\ McGill University\\ Montreal, Quebec, Canada\\
 {\tt \href{mailto:nicholas.esterer@mail.mcgill.ca}{nicholas.esterer@mail.mcgill.ca}}
 }
 {\paperauthorB \,}
-{\href{http://www.cirmmt.org/}{%Sound Processing and Control Laboratory
-        SPCL \\%
-%        \sthanks{Sound Processing and Control Laboratory} \\%
-%        Centre for Interdisciplinary Research in Music Media and Technology
-        CIRMMT %
-%        \sthanks{Centre for Interdisciplinary Research in Music Media and Technology}%
-    } %
-\\ McGill University %
-\\ Montreal, Quebec, Canada \\
-\tt %
-\href{mailto:philippe.depalle@mcgill.ca}{philippe.depalle@mcgill.ca}}
+{\href{https://mt.music.mcgill.ca/spcl}{SPCL} \\ McGill University\\ Montreal,
+Quebec, Canada\\ {\tt \href{mailto:philippe.depalle@mcgill.ca}{philippe.depalle@mcgill.ca}}
+}
 
 \input{ddm_snr_win_comp_defs.txt}
 \input{comp_offset_chirp_est_err_defs.txt}
@@ -196,13 +159,13 @@ arbitrary complexity simply by increasing $Q$, it remains essential to consider
 signals featuring a sum of $P$ such components, whether they represent the harmonic structure of a musical sound or the union of partials resulting from a mixture of multiple signal sources (e.g., recordings of multiple speakers or performers),  i.e., 
 %
 \begin{equation}
-    \label{eq:polyphaseexpmix}
     x(t) = \sum_{p=1}^{P} x_{p}(t) + \eta(t)
 \end{equation}
 %
 with
 %
 \begin{equation}
+    \label{eq:polyphaseexpmix}
     x_{p}(t) = \exp(a_{p,0} + \sum_{q=1}^{Q} a_{p,q} t^q)
 \end{equation}
 %
@@ -232,7 +195,7 @@ combine these two properties. For this, a technique to design
 once-differentiable approximations to arbitrary symmetrical windows is proposed
 and presented along with a design example for a high-performance window. Finally
 we evaluate the performance of various once-differentiable windows in estimating
-the $a_{q}$.
+the parameters $a_{q}$.
 
 \section{Estimating the parameters \lowercase{$a_{q}$}}
 \label{sec:estimating_aj}
@@ -290,9 +253,8 @@ or, using the operator $\mathcal{T}^{\alpha}$,
 \end{equation}
 %
 
-Estimating coefficients $a_{q}$, ${1 < q \leq Q}$,
-simply requires $R$ atoms with $R \geq Q$ to solve the linear system of
-equations
+Estimating coefficients $a_{q}$, ${1 < q \leq Q}$, simply requires $R$ atoms
+$\psi_{r}$ with $R \geq Q$ to solve the linear system of equations
 \begin{equation}
     \label{eq:ddmsyseq}
     \sum_{q=1}^{Q} q a_{q} 
@@ -360,14 +322,17 @@ and substitute $g$ for $f$ in Eq.~\ref{eq:ddm:weighted:sig:derivative} we obtain
     = \\ 
     \sum_{p=1}^{P} \left(
     \sum_{q=1}^{Q} q a_{p,q} 
-    \left\langle \mathcal{T}^{q-1} x_i , \overline{\psi} \right\rangle
-    + \left\langle x_i, \frac{d\overline{\psi}}{dt} \right\rangle \right)
+    \left\langle \mathcal{T}^{q-1} x_{p} , \overline{\psi} \right\rangle
+    + \left\langle x_{p}, \frac{d\overline{\psi}}{dt} \right\rangle \right)
 \end{multline}
 %
-From this we see if $\left\langle \mathcal{T}^{q-1} x_i , \overline{\psi}_{r}
-\right\rangle$ and $\left\langle x_i, \frac{d\overline{\psi_{r}}}{dt} \right\rangle$
-are small for all but $p = p^{\ast}$ and a subset of $R$ atoms, we
-can simply estimate the parameters $a_{p^{\ast},q}$ using
+From this we see if $\left\langle \mathcal{T}^{q-1} x_{p} , \overline{\psi}_{r}
+\right\rangle$ and $\left\langle x_{p}, \frac{d\overline{\psi_{r}}}{dt} \right\rangle$
+are small for all but $p = p^{\ast}$ and a subset of $R$ atoms\footnote{%
+The notation $x^{\ast}$ will mean the value of the argument $x$ maximizing or minimizing some
+function.
+}%
+, we can simply estimate the parameters $a_{p^{\ast},q}$ using
 \begin{equation}
     \sum_{q=1}^{Q} q a_{{p^{\ast}},q} 
     \left\langle \mathcal{T}^{q-1} x_{p^{\ast}} , \overline{\psi}_{r} \right\rangle
@@ -392,7 +357,7 @@ prolate window.}
 %
 In practice, an approximation of Eq.~\ref{eq:ddm:inner:prod:def} is evaluated using
 the DFT on a signal $x$ that is properly sampled
-and so can be evaluated at a finite number of time-points $nT$ with $n \in [0,N-1]$ and
+and so can be evaluated at a finite number of times $nT$ with $n \in [0,N-1]$ and
 $T$ the sample period in seconds. In this way, the chosen atoms $\psi_{\omega}(t)$ 
 are the products of the elements of the Fourier basis and an appropriately
 chosen window $w$ that is once differentiable and finite, i.e.,
@@ -402,7 +367,7 @@ chosen window $w$ that is once differentiable and finite, i.e.,
     \psi_{\omega}(t) = w(t) \exp(-j \omega t)
 \end{equation}
 %
-Defining $N = \frac{L_{t}}{T}$ and angular frequency at bin $r$ as $\omega = 2
+Defining $N = \frac{L_{t}}{T}$ and angular frequency at bin $r$ as $\omega_{r} = 2
 \pi \frac{r}{N}$, the approximate inner product is then
 %
 \begin{equation}
@@ -467,31 +432,31 @@ straightforward way. In \cite{harris1978use} and \cite{rabiner1970approach} it
 is shown how to design optimal windows of length $N$ samples using a linear
 combination of $M$ harmonically related cosines
 \begin{equation}
-    \tilde{w}(n) = \sum_{k=0}^{M-1} b_{k} \cos (2 \pi k \frac{n}{N})
+    \tilde{w}(n) = \sum_{m=0}^{M-1} b_{m} \cos (2 \pi m \frac{n}{N})
 \mathcal{R}(\frac{n}{N})
 \end{equation}
 where $\mathcal{R}$ is the \textit{rectangle function}. This function is
 discontinuous
 at $n = \frac{\pm N}{2}$, and therefore not differentiable there, unless
 \begin{equation}
-\sum_{k=0}^{M-1} b_{k} \cos ( \pm \pi k ) = 0
+\sum_{m=0}^{M-1} b_{m} \cos ( \pm \pi m ) = 0
 \end{equation}
 
 Rather than design based on an optimality criterion, such as the height of the
 highest sidelobe \cite{rabiner1970approach}, a once-differentiable approximation
-to an existing window $w$ is desired. To do this, we choose the $b_{k}$ so that
+to an existing window $w$ is desired. To do this, we choose the $b_{m}$ so that
 the window $\tilde{w}$'s squared approximation error to $w$ is minimized while having
-$\tilde{w}(\frac{\pm N}{2}) = 0$, i.e. we find the solution $\{ b^{\ast}_{k} \}$ to the
+$\tilde{w}(\frac{\pm N}{2}) = 0$, i.e. we find the solution $\{ b^{\ast}_{m} \}$ to the
 mathematical program
 \begin{equation}
     \label{eq:searchcontwinprogram}
     \text{minimize}
     \sum_{n=0}^{N-1} ( w(n) 
-        - \sum_{k=0}^{M-1} b_{k} \cos(2 \pi k \frac{n}{N}))^{2}
+        - \sum_{m=0}^{M-1} b_{m} \cos(2 \pi m \frac{n}{N}))^{2}
 \end{equation}
 \begin{equation}
     \text{subject to} \\
-    \sum_{k=0}^{M-1} b_{k} \cos(\pi k ) = 0
+    \sum_{m=0}^{M-1} b_{m} \cos(\pi m ) = 0
 \end{equation}
 which can be solved using constrained least-squares; a standard numerical
 linear algebra routine \cite[p.~585]{golub1996matrix}.
@@ -569,9 +534,10 @@ very close to a digital prolate spheroidal window with $W=0.008$ and is
 therefore omitted for brevity.
 
 It is seen that a lower highest sidelobe level than the Nuttall and Prolate
-windows is obtained by slightly sacrificing the narrowness of the main lobe. Furthermore in
-Fig.~\ref{fig:dpw} we observe that the falloff of the window is 18 dB per octave
-because it is once-differentiable at all points in its domain.
+windows is obtained by slightly sacrificing the narrowness of the main lobe.
+More importantly, in Fig.~\ref{fig:dpw} we observe that the falloff of the
+window is 18 dB per octave because it is once-differentiable at all points in
+its domain.
 
 \section{The performance of improved windows}
 
@@ -595,25 +561,31 @@ parameters of a single component signal.
 \begin{figure}[H]
     \centering
             \begin{tikzpicture}[node distance=0.25cm]
-                \node (start) [process] at (0,0) {Synthesize $K_{2}$ single-component signals};
-                \node (modulate) [process, below = of start] {Modulate so that peak bin is at frequency 0 for all signals};
-                \node (setd) [process, below = of modulate] {Set $d=0$};
+                \node (start) [process] at (0,0) {Synthesize $K_{2}$
+                single-component signals.};
+                \node (modulate) [process, below = of start] {Modulate so that
+                peak bin is at frequency 0 for all signals.};
+                \node (setd) [process, below = of modulate] {Set $d=0$.};
                 \node (choosepair) [process, below = of setd] {Choose
-                    $K_{2}(K_{2}-1)$ pairs of signals};
+                    $K_{2}(K_{2}-1)$ pairs of signals.};
                 \node (dum1) [emptybox, right = of choosepair] {};
                 \node (scaleone) [process, below = of choosepair] {Scale one in
-                each pair to give desired power and modulate to peak bin according to $d$};
-                \node (addpair) [process, below = of scaleone] {Add each pair together};
+                each pair to give desired power from $\mathcal{S}$ and modulate to peak bin
+                according to $d$.};
+                \node (addpair) [process, below = of scaleone] {Add each signal
+                pair together.};
                 \node (tryestimate1) [process, below = of addpair] {For each
                 pair, try
-                estimating parameters of unmodulated component with atoms at bins $\{-1,0,1\}$};
+                estimating parameters of unmodulated component with atoms at
+                bins $\{-1,0,1\}$.};
                 \node (tryestimate2) [process, below = of tryestimate1] {For
                 each pair, try
-                estimating parameters of modulated component with atoms at bins $\{d-1,d,d+1\}$};
+                estimating parameters of modulated component with atoms at bins
+                $\{d-1,d,d+1\}$.};
                 \node (sumerrs) [process, below = of tryestimate2] {Sum estimation errors of
-                each parameter and divide by $K_{2}(K_{2}-1)$};
+                each parameter and divide by $K_{2}(K_{2}-1)$.};
                 \node (incd) [process, below = of sumerrs] {Increment $d$ by
-                $\Delta_{d}$};
+                $\Delta_{d}$.};
                 \node (dum2) [emptybox, right = of incd] {};
                 \node (dum3) [emptybox, below = of incd] {};
                 \node (dum3b) [emptybox, left = of incd] {};
@@ -630,16 +602,19 @@ parameters of a single component signal.
                 \draw [arrow] (tryestimate1) -- (tryestimate2);
                 \draw [arrow] (tryestimate2) -- (sumerrs);
                 \draw [arrow] (sumerrs) -- (incd);
-                \draw [noarrow] (incd) -- (dum2.center);
-                \draw [noarrow] (dum2.center) -- node [anchor=west,text
-                width=2cm,minimum width=3cm] {If $d < D$} (dum1.center) ;
-                \draw [arrow]   (dum1.center) -- (choosepair);
 
-                \draw [noarrow] (incd) -- (dum3.center);
-                \draw [noarrow] (dum3.center) -- (dum4.center);
-                \draw [noarrow] (dum4.center) -- node [anchor=east,text width=2cm,minimum width=2cm] {If
-                signal power ratios remaining} (dum5.center);
-                \draw [arrow] (dum5.center) -- (setd);
+                \draw [arrow] (incd) -- (dum2.center) -- (dum2.center) -- 
+                    node [anchor=west,text width=2cm,minimum width=3cm] {If $d <
+                    D$.} (dum1.center) 
+                    -- (dum1.center) -- (choosepair);
+
+                \draw [arrow] (incd) -- (dum3.center) -- (dum3.center) --
+                (dum4.center) -- (dum4.center) -- 
+                node [anchor=east,text width=2cm,minimum width=2cm]
+                {If signal power ratios in $\mathcal{S}$ remaining to be
+                evaluated.} (dum5.center) --
+                 (dum5.center) -- (setd);
+
             \end{tikzpicture}
     \caption{The evaluation procedure for 2-component
     signals.\label{fig:2cevalflowchart}}
@@ -657,16 +632,17 @@ the two components. To obtain a set of components from which test signals
 exhibiting the desired differences could be constructed, we synthesized a set
 $\mathcal{C}$ of $K_{2}$ components for which the energy is maximized in bin 0.
 Test signals were obtained by choosing a pair of unique components from this set
-and modulating one to give the desired difference.  This was carried out as
+and modulating one to give the desired frequency and amplitude difference.  This was carried out as
 follows: the atom $r^{\ast}$ for which the inner product was maximized was
 determined for each unmixed chirp and the chirp was modulated by $\exp(-2\pi
 \frac{r^{\ast} n}{N}j)$ for $0 \leq n < N$ in order to move this maximum
-to $r=0$. Then for each desired difference $d$, with $0 \leq d < D$, two unique
+to $r=0$. Then for each desired difference $d$, with $0 \leq d < D$ (for the
+evaluation $D = \Doffset{}$), two unique
 chirps were selected from $\mathcal{C}$ and one chirp was modulated by
 $\exp(2\pi \frac{n d}{N}j)$ for $0 \leq n < N$ in order to give the
 desired difference between maxima. This component was also scaled by a constant
-to give a desired signal power ratio with the other component (the power ratios
-tested were 0 dB and -30 dB). As we assume perfect peak-atom selection for this
+to give a desired signal power ratio from set $\mathcal{S}$ with the other component (the power ratios
+$\mathcal{S}$ tested were 0 dB and -30 dB). As we assume perfect peak-atom selection for this
 evaluation no inner-product maximizing $r^{\ast}$ is chosen, rather atoms with
 angular frequencies $\omega=2\pi\frac{\hat{d}}{N}$ for $\hat{d} \in
 \{d-1,d,d+1\}$ in Eq.~\ref{eq:fourieratom} (again, $R=3$) were chosen to carry
@@ -685,7 +661,7 @@ signals is similar to the behaviour of windows used for harmonic analysis in the
 stationary case \cite{harris1978use}; here we obtain further insight into how
 the estimation of each coefficient of the polynomial in
 Eq.~$\ref{eq:polyphaseexp}$ is influenced by main-lobe width and sidelobe
-height. In Fig.~\ref{fig:mixwincomp} we see that there is generally less
+height and slope. In Fig.~\ref{fig:mixwincomp} we see that there is generally less
 estimation error for components having similar signal power. This is to be
 expected as there will be less masking of the weaker signal in these scenarios.
 The estimation error is large when the atoms containing the most signal energy
@@ -722,7 +698,8 @@ depending on the separation of local maxima in the power spectrum. It should
 also be determined if these windows improve the modeling of real-world acoustic
 signals.
 
-%\section{Acknowledgments}
+\section{Acknowledgments}
+This work was partially supported by grant from the Natural Sciences and Engineering Research Council of Canada awarded to Philippe Depalle (RGPIN-262808-2012).
 
 %\newpage
 %\nocite{*}
