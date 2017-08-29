@@ -46,14 +46,14 @@ resolution atoms for the Distribution Derivative Method}
 
 % Flowchart drawing stuff
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows, positioning, calc}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
 \tikzstyle{startstop} = [rectangle,draw=black,text centered]%, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
 \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
 \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=0cm, text
 centered, draw=black, text width=0.3\columnwidth]
 \tikzstyle{emptybox} = []
 \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
-\tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzstyle{arrow} = [thick,->,-{Latex}]
 \tikzstyle{noarrow} = [thick,-,>=stealth]
 
 \title{\papertitle}
@@ -324,6 +324,7 @@ $\hat{d}$ was not generally integral valued in this case.
             \begin{tikzpicture}[node distance=0.25cm]
                 \node (start) [process] at (0,0) {Synthesize $K_{2}$
                 single-component signals.};
+                \node (dumstart) [emptybox, right = of start] {};
                 \node (modulate) [process, below = of start] {Modulate so that
                 peak bin is at frequency 0 for all signals.};
                 \node (setd) [process, below = of modulate] {Set $d=0$.};
@@ -333,7 +334,8 @@ $\hat{d}$ was not generally integral valued in this case.
                 \node (scaleone) [process, below = of choosepair] {Scale one in
                 each pair to give desired power from $\mathcal{S}$ and modulate to peak bin
                 according to $d$.};
-                \node (addpair) [process, below = of scaleone] {Add each signal
+                \node (dumscaleone) [emptybox, right = of scaleone] {};
+                \node (addpair) [process, right = of dumstart] {Add each signal
                 pair together.};
                 \node (tryestimate1) [process, below = of addpair] {For each
                 pair, try
@@ -347,9 +349,9 @@ $\hat{d}$ was not generally integral valued in this case.
                 each parameter and divide by $K_{2}(K_{2}-1)$.};
                 \node (incd) [process, below = of sumerrs] {Increment $d$ by
                 $\Delta_{d}$.};
-                \node (dum2) [emptybox, right = of incd] {};
+                \node (dum2) [emptybox, left = of incd] {};
                 \node (dum3) [emptybox, below = of incd] {};
-                \node (dum3b) [emptybox, left = of incd] {};
+                \node (dum3b) [emptybox, left = of scaleone] {};
                 \node (dum4) [emptybox] at (dum3b |- dum3) {};
 %                \node let \p{dum3b}=(dum3b), \p{dum3}=(dum3) in (dum4) [emptybox] at (\x{dum3b},\y{dum3}) {};
                 \node (dum5) [emptybox, left = of setd] {};
@@ -358,22 +360,23 @@ $\hat{d}$ was not generally integral valued in this case.
                 \draw [arrow] (modulate) -- (setd);
                 \draw [arrow] (setd) -- (choosepair);
                 \draw [arrow] (choosepair) -- (scaleone);
-                \draw [arrow] (scaleone) -- (addpair);
+                \draw [arrow] (scaleone) -- (dumscaleone.west) --
+                (dumstart.west) -- (addpair);
                 \draw [arrow] (addpair) -- (tryestimate1);
                 \draw [arrow] (tryestimate1) -- (tryestimate2);
                 \draw [arrow] (tryestimate2) -- (sumerrs);
                 \draw [arrow] (sumerrs) -- (incd);
 
-                \draw [arrow] (incd) -- (dum2.center) -- (dum2.center) -- 
-                    node [anchor=west,text width=2cm,minimum width=3cm] {If $d <
-                    D$.} (dum1.center) 
-                    -- (dum1.center) -- (choosepair);
+                \draw [arrow] (incd) -- (dum2.east) -- 
+                    (dum1.east) -- (choosepair);
+                \node [emptybox,text width=4cm,minimum width=3cm,left = of dum2]
+                {If $d < D$.};
 
-                \draw [arrow] (incd) -- (dum3.center) -- (dum3.center) --
-                (dum4.center) -- (dum4.center) -- 
-                node [anchor=east,text width=2cm,minimum width=2cm]
+                \draw [arrow] (incd) -- (dum3.center) -- 
+                (dum4.center) -- 
+                node [anchor=east,text width=4cm,minimum width=2cm]
                 {If signal power ratios in $\mathcal{S}$ remaining to be
-                evaluated.} (dum5.center) --
+                evaluated.} 
                  (dum5.center) -- (setd);
 
             \end{tikzpicture}
