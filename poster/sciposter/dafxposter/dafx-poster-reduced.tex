@@ -1,0 +1,476 @@
+\def\papertitle{On the design and use of once-differentiable high dynamic
+resolution atoms for the Distribution Derivative Method%
+}
+\def\paperauthorA{Nicholas Esterer}
+\def\paperauthorB{Philippe Depalle}
+\documentclass[plainsections,landscape]{sciposter}
+
+
+\usepackage{epsfig}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multicol}
+\usepackage{tcolorbox}
+\usepackage{caption}
+%\usepackage{fancybullets}
+%\usepackage{amsmath,amssymb,amsfonts,amsthm}
+%\usepackage{euscript}
+%\usepackage[latin1]{inputenc}
+%\usepackage[T1]{fontenc}
+%\usepackage{ifpdf}
+%
+%\usepackage[english]{babel}
+%\usepackage{caption}
+%\usepackage{subfig} % or can use subcaption package
+%\usepackage{color}
+%\usepackage{cite}
+%\usepackage{float}
+%
+%\usepackage{hyphenat}
+%\hyphenation{spher-oidal}
+%%\hyphenation{amp-li-tude}
+%%\hyphenation{mod-u-lat-ed}
+%
+%\usepackage{times}
+
+\newtheorem{Def}{Definition}
+
+%\definecolor{BoxCol}{rgb}{0.9,0.9,0.9}
+% uncomment for grey background to \section* boxes 
+% for use with default option boxedsections
+
+%\definecolor{BoxCol}{rgb}{0.9,0.9,1}
+% uncomment for light blue background to \section* boxes 
+% for use with default option boxedsections
+
+%\definecolor{SectionCol}{rgb}{0,0,0.5}
+% uncomment for dark blue \section* text 
+
+% Flowchart drawing stuff
+\newcommand{\myinnercolsep}{1cm}
+\newcommand{\flowfontsize}{\small}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc,
+backgrounds}
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=0cm, text
+centered, draw=black,  font=\flowfontsize{}, text width=0.4\columnwidth]
+\tikzstyle{emptybox} = []
+\tikzstyle{arrow} = [thick,->,-{Latex}]
+\tikzstyle{noarrow} = [thick,-,>=stealth]
+
+\title{\papertitle}
+
+% Note: only give author names, not institute
+\author{\paperauthorA{} and \paperauthorB{}}
+ 
+% insert correct institute name
+\institute{Sound Processing and Control Laboratory (SPCL), McGill University,
+Montreal, Canada}
+
+\email{nicholas.esterer@mail.mcgill.ca, philippe.depalle@mcgill.ca}  % shows author email address below institute
+
+\input{ddm_snr_win_comp_defs.txt}
+\input{comp_offset_chirp_est_err_defs.txt}
+
+\setlength{\secskip}{1pt}
+
+\ifthenelse{\equal{\orientation}{landscape}}{
+  \setlength{\titleskip}{0.01\textheight}
+}{
+  \setlength{\titleskip}{0.01\textwidth}
+}
+
+\newcommand{\imsize}{\columnwidth}
+\newcommand{\mytcbtitlewrap}[1]{{\parbox[bottom][1.5cm][c]{\linewidth}{#1}}}
+
+% This is a huge hack
+\renewcommand{\rightlogo}[3][0.9]{%
+\ifthenelse{\equal{#2}{}}{%
+ \renewcommand{\printrightlogo}{%
+   \begin{center}
+     \hspace*{0.6\textwidth}
+   \end{center}
+   }
+ }
+ {\renewcommand{\printrightlogo}{%
+      \begin{center}
+      \resizebox{#1\textwidth}{!}{\includegraphics{#2}}
+      \vspace{4.5cm}
+      \resizebox{#1\textwidth}{!}{\includegraphics{#3}}
+    \end{center}
+ }}
+}
+
+\renewcommand{\leftlogo}[2][0.9]{%
+\ifthenelse{\equal{#2}{}}{%
+ \renewcommand{\printleftlogo}{%
+   \begin{center}
+     \hspace*{0.6\textwidth}
+   \end{center}
+   }
+ }
+ {\renewcommand{\printleftlogo}{%
+      \begin{center}
+      \resizebox{#1\textwidth}{!}{\includegraphics{#2}}
+      \vspace{4.5cm}
+    \end{center}
+ }}
+}
+
+\renewcommand{\footnotesize}{\small}
+
+\tcbset{colbacktitle=white,coltitle=black,adjust text=\vline height
+1cm,valign=center,toptitle=2mm,bottomtitle=2mm,fonttitle=\bfseries}
+
+\setmargins[3cm]
+\begin{document}
+
+\leftlogo[1.0]{{DAFx17_logo}.pdf}
+\rightlogo[1.0]{{cirmmt_logo}.pdf}{{nserc_logo}.pdf}
+%\rightlogo[1.0]{{nserc_logo}.pdf}
+\renewcommand{\footlogo}{%
+    \resizebox{\logowidth}{!}{\includegraphics{{nserc_logo}.pdf}\hspace{1cm}\includegraphics{{cirmmt_logo}.pdf}}%
+}
+
+%define conference poster is presented at (appears as footer)
+
+\conference{{\em{\small{The 20$^{\text{\itshape th}}$ International Conference
+on Digital Audio Effects (DAFx-17), Edinburgh, UK, September 5--9, 2017, \textbf{pp.
+208--214}.}}}}
+
+%\LEFTSIDEfootlogo  
+% Uncomment to put footer logo on left side, and 
+% conference name on right side of footer
+
+% Some examples of caption control (remove % to check result)
+
+%\renewcommand{\algorithmname}{Algoritme} % for Dutch
+
+\renewcommand{\mastercapstartstyle}[1]{\small{\textbf{#1}}}
+
+\renewcommand{\mastercapbodystyle}[1]{\small{}#1}
+%\renewcommand{\algcapstartstyle}[1]{\textsc{\textbf{#1}}}
+%\renewcommand{\algcapbodystyle}{\bfseries}
+%\renewcommand{\thealgorithm}{\Roman{algorithm}}
+
+\maketitle
+
+%\newpage
+
+%\newpage
+
+%%% Begin of Multicols-Enviroment
+\setlength{\columnseprule}{0pt}
+\begin{multicols}{3}
+
+%%% Abstract
+\begin{tcolorbox}[title=\mytcbtitlewrap{Abstract}]
+\setlength{\columnsep}{\myinnercolsep}
+\begin{multicols}{2}
+    \textit{%
+        The \textbf{accuracy of the Distribution Derivative Method (DDM)
+    \cite{betser2009sinusoidal}} is evaluated on mixtures of \textbf{chirp
+    signals}. It is
+    shown that accurate estimation can be obtained when the sets of atoms for
+    which the inner product is large are disjoint.  This amounts to \textbf{designing
+    atoms} with windows whose Fourier transform exhibits \textbf{low side-lobes but which
+    are once-differentiable in the time-domain}. A \textbf{technique for designing
+    once-differentiable approximations} to windows is presented and the \textbf{accuracy
+    of these windows in estimating the parameters} of sinusoidal chirps in
+    mixture \textbf{is evaluated}.}
+\end{multicols}
+\end{tcolorbox}
+
+%%% Introduction
+    \begin{tcolorbox}[title=\mytcbtitlewrap{Introduction}]
+\setlength{\columnsep}{\myinnercolsep}
+\begin{multicols}{2}
+\label{sec:intro}
+    \begin{itemize}
+        \item{Recently, there has
+            been interest in using \textbf{higher-order phase functions} for the argument of sinusoidal
+    functions \cite{xuepiecewise} as the estimation of
+their parameters has been made possible by a set of \textbf{techniques 
+            using signal derivatives} \cite{hamilton2012unified}. The DDM is one
+            such technique.}
+
+        \item{For comparison with previous research on the DDM, we consider the estimation -- via the DDM -- of the parameters of a
+            \textbf{parabolic phase function} for which the imaginary parts of the parameters
+            represent the \textbf{initial phase, frequency and frequency slope}. The real parts
+    of the parameters represent the \textbf{initial amplitude, amplitude slope and
+            amplitude curvature}.}
+
+        \vspace{1cm}
+
+        \item{The DDM requires a set of atoms that are \textbf{once-differentiable everywhere in
+            the time-domain} from which the parameters are estimated. We
+    show that on a \textbf{mixture of sinusoids, accurate estimation for each
+            sinusoid}
+    can be obtained under a single-component
+            assumption when components have roughly \textbf{disjoint sets of atoms} for which their
+inner products take on large values.}
+
+\item{\textbf{Encouraging disjointedness} amounts to designing atoms whose Fourier
+    transform exhibits \textbf{low side-lobes} under the additional constraint that
+            the atoms be \textbf{everywhere once-differentiable}. We show how to \textbf{design atoms
+            with this latter property} based on the shapes of ideal windows.}
+    \end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\addtocounter{footnote}{1}\footnotetext{\label{fn:mathdefs}
+$\mathcal{T}^{\alpha} : (\mathcal{T}^{\alpha}x)(t) = t^{\alpha}x(t)$,
+$\left\langle x , \psi \right\rangle = 
+\int_{-\infty}^{\infty}x(t)\overline{\psi}(t)dt$
+}
+\addtocounter{footnote}{1}\footnotetext{\label{fn:optnote}
+The notation $x^{\ast}$ will mean the value of the argument $x$ maximizing or minimizing some
+function.
+}%
+
+\begin{tcolorbox}[title=\mytcbtitlewrap{Estimating the
+    \lowercase{$a_{p,q}$} of $P$ components}]
+\setlength{\columnsep}{\myinnercolsep}
+\begin{multicols}{2}
+The model for signal $x$ is
+%
+\begin{equation}
+    \label{eq:polyphaseexpmix}
+    x(t) = \sum_{p=1}^{P} x_{p}(t) + \eta(t)
+\end{equation}
+%
+with $ x_{p}(t) = \exp(a_{p,0} + \sum_{q=1}^{Q} a_{p,q} t^q) $
+
+and $\eta$ Gaussian-distributed white noise. 
+
+Applying the DDM to a mixture of $P$ components, we
+    obtain\footnotemark[1]%\ref{fn:mathdefs}]
+%
+\begin{multline}
+    \label{eq:mixest}
+    \sum_{p=1}^{P} \left(
+    \sum_{q=1}^{Q} q a_{p,q} 
+    \left\langle \mathcal{T}^{q-1} x_{p} , \overline{\psi} \right\rangle
+    + \left\langle x_{p}, \frac{d\overline{\psi}}{dt} \right\rangle \right)
+    \\
+    = 0
+\end{multline}
+%
+When $\left\langle \mathcal{T}^{q-1} x_{p} , \overline{\psi}_{r}
+\right\rangle$ and $\left\langle x_{p}, \frac{d\overline{\psi_{r}}}{dt} \right\rangle$
+are small for all but $p = p^{\ast}$ and a subset of $R$ atoms, we can simply
+    estimate the parameters $a_{p^{\ast},q}$ using%
+    \footnotemark[2]%[\ref{fn:optnote}]
+\begin{multline}
+    \sum_{q=1}^{Q} q a_{{p^{\ast}},q} 
+    \left\langle \mathcal{T}^{q-1} x_{p^{\ast}} , \overline{\psi}_{r} \right\rangle
+    = -\left\langle x_{p^{\ast}}, \frac{d\overline{\psi}_{r}}{dn}
+    \right\rangle\\
+    \text{for } 1 \leq r \leq R\text{.}
+\end{multline}
+\end{multicols}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=\mytcbtitlewrap{Designing the $\psi_{r}$}]
+\setlength{\columnsep}{\myinnercolsep}
+\begin{multicols}{2}
+\label{sec:designingatoms}
+%
+Canonically, the atoms $\psi_{\omega}(t)$ 
+    are the \textbf{products} of the elements of the \textbf{Fourier basis} and a 
+    \textbf{window $w$ that is once differentiable}, i.e.,
+    $\psi_{\omega}(t) = w(t) \exp(-j \omega t)$.
+
+    Defining $N$ \textbf{as the length of the window} in samples, angular frequency at bin $r$ as $\omega_{r} = 2
+\pi \frac{r}{N}$, and $T$ the sample period in seconds, the approximate
+    \textbf{inner product} $\left\langle x , \psi_{\omega}
+    \right\rangle$ equals:
+\begin{multline}
+    \label{eq:approxinnerprod}
+    \sum_{n=0}^{N-1} x(Tn) w(Tn) \exp(-2 \pi j r \frac{n}{N}) 
+\end{multline}
+i.e., the definition of the DFT of a windowed signal.
+\columnbreak
+
+Therefore \textbf{choosing $\psi$ amounts to
+    designing a Fourier window with minimal side-lobes}, under the \textbf{constraint
+    that the window be differentiable in $t$ and finite}.
+\end{multicols}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=\mytcbtitlewrap{Differentiable approximations to windows}]
+%
+\begin{figure}
+\begin{center}
+    {\resizebox{\imsize}{!}{\includegraphics{{search_dpw_bw_m}.eps}}}
+\end{center}
+    \caption{\label{fig:dpw} \textbf{Comparing the main-lobe and asymptotic power
+    spectrum} characteristics of the continuous 4-term Nuttall window, the digital
+prolate window with $W=0.008$, and the \textbf{continuous approximation to the digital
+    prolate window}. The falloff of the
+    Nuttall and Prolate Approximation is \textbf{18 dB per octave} because they are both
+    \textbf{once-differentiable with respect to time}.}
+\end{figure}
+%
+\setlength{\columnsep}{\myinnercolsep}
+\begin{multicols}{2}
+A differentiable approximation to a symmetrical window of length $N$ samples can be designed using a \textbf{linear
+    combination of $M$ harmonically related cosines} \cite{harris1978use} \cite{rabiner1970approach} 
+\begin{equation}
+    \tilde{w}(n) = \sum_{m=0}^{M-1} b_{m} \cos (2 \pi m \frac{n}{N})
+\mathcal{R}(\frac{n}{N})
+\end{equation}
+where $\mathcal{R}$ is the \textit{rectangle function}.
+    
+$\tilde{w}(n)$ is
+not differentiable
+at $n = \frac{\pm N}{2}$, unless
+$\sum_{m=0}^{M-1} b_{m} \cos ( \pm \pi m ) = 0$.
+
+Therefore, we choose the $b_{m}$ 
+minimizing the window $\tilde{w}$'s approximation error to $w$ while
+    \textbf{maintaining continuity}, finding the solution $\{ b^{\ast}_{m} \}$ to the
+mathematical program
+\begin{equation*}
+    \label{eq:searchcontwinprogram}
+    \text{minimize}
+    \sum_{n=0}^{N-1} ( w(n) 
+        - \sum_{m=0}^{M-1} b_{m} \cos(2 \pi m \frac{n}{N}))^{2}
+\end{equation*}
+\begin{equation}
+    \text{subject to} \\
+    \sum_{m=0}^{M-1} b_{m} \cos(\pi m ) = 0
+\end{equation}
+
+    Using this technique, we designed a \textbf{5-term continuous approximation} to a digital \textbf{prolate
+    spheroidal window} of length $N=512$ and design parameter $W=0.008$ \cite{verma1996digital}. The coefficients
+are described in Table~\ref{tab:contprolate} and a comparison with other
+windows is shown in Figure~\ref{fig:dpw}.
+
+\begin{table}[]
+    \caption{The coefficients of the once-differentiable approximation to a digital prolate
+    window.
+    \label{tab:contprolate}}
+    \begin{center}
+        \begin{tabular}{c c c}
+            $b_0$ & $ = $ & 3.128 $\times 10^{-1}$ \\
+            $b_1$ & $ = $ & 4.655 $\times 10^{-1}$ \\
+            $b_2$ & $ = $ & 1.851 $\times 10^{-1}$ \\
+            $b_3$ & $ = $ & 3.446 $\times 10^{-2}$ \\
+            $b_4$ & $ = $ & 2.071 $\times 10^{-3}$ 
+        \end{tabular}
+    \end{center}
+\end{table}%
+\end{multicols}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=\mytcbtitlewrap{The performance of improved windows on a
+    mixture of 2 sinusoids}]
+%    \setlength{\floatsep}{-20pt}
+    \begin{center}
+\begin{figure}
+\begin{center}
+    {\resizebox{\imsize}{!}{\includegraphics{{comp_offset_chirp_est_err_params}.eps}}}
+\end{center}
+\caption{\label{fig:mixwincomp} The mean squared estimation error for each
+    parameter \textbf{in an analysis of two components in mixture}. A set of
+    \textbf{$K_{2}=\Koffset{}$ chirps} was synthesized and \textbf{each unique
+    pair} used for
+    maximum bin differences $0 \leq d < \Doffset{}$, with $d$ varied in
+    $\Delta_{d} = \Dstep{}$ bin increments. The \textbf{signal power ratio}
+    between components is indicated with \textbf{colours} and the corresponding ratio in decibels is indicated in the
+    plot legend (the power ratios
+    $\mathcal{S}$ tested were \textbf{0 dB and -30 dB}). The names indicate the windows used to generate the atoms for
+    estimation: \textbf{\textit{N3} and \textit{N4} are the 3- and 4-cosine-term
+    continuous Nuttall} windows, \textbf{\textit{H} is the Hann window}, and \textbf{\textit{P5}
+    is the continuous 5-cosine-term approximation to a digital prolate window}.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[l]{0.65\columnwidth}
+            \begin{tikzpicture}[node distance=0.25cm, background rectangle/.style= {draw=white,fill=white}, show background rectangle]
+%                \begin{scope}[shift={(-5,0)}]
+                \node (start) [process] at (0,0) {Synthesize $K_{2}$
+                single-component signals.};
+                \node (dumstart) [emptybox, right = of start] {};
+                \node (modulate) [process, below = of start] {Modulate so that
+                peak bin is at frequency 0 for all signals.};
+                \node (setd) [process, below = of modulate] {Set $d=0$.};
+                \node (choosepair) [process, below = of setd] {Choose
+                    $K_{2}(K_{2}-1)$ pairs of signals.};
+                \node (dum1) [emptybox, right = of choosepair] {};
+                \node (scaleone) [process, below = of choosepair] {Scale one in
+                each pair to give desired power from $\mathcal{S}$ and modulate to peak bin
+                according to $d$.};
+                \node (dumscaleone) [emptybox, right = of scaleone] {};
+                \node (addpair) [process, right = of dumstart] {Add each signal
+                pair together.};
+                \node (tryestimate1) [process, below = of addpair] {For each
+                pair, try
+                estimating parameters of unmodulated component with atoms at
+                bins $\{-1,0,1\}$.};
+                \node (tryestimate2) [process, below = of tryestimate1] {For
+                each pair, try
+                estimating parameters of modulated component with atoms at bins
+                $\{d-1,d,d+1\}$.};
+                \node (sumerrs) [process, below = of tryestimate2] {Sum estimation errors of
+                each parameter and divide by $K_{2}(K_{2}-1)$.};
+                \node (incd) [process, below = of sumerrs] {Increment $d$ by
+                $\Delta_{d}$.};
+                \node (dum2) [emptybox, left = of incd, font=\flowfontsize{},
+                anchor=east] {If $d < D$.};
+                \node (dum3) [emptybox, below = of incd] {};
+                \node (dum3b) [emptybox, left = of scaleone] {};
+                \node (dum4) [emptybox] at (dum3b |- dum3) {};
+                \node (dum4text) [emptybox, text width=0.3\columnwidth, above right, 
+                font=\flowfontsize{}] at (dum4.center) {If signal power ratios in $\mathcal{S}$ remaining to be
+                evaluated.};
+%                \node let \p{dum3b}=(dum3b), \p{dum3}=(dum3) in (dum4) [emptybox] at (\x{dum3b},\y{dum3}) {};
+                \node (dum5) [emptybox, left = of setd] {};
+
+                \draw [arrow] (start) -- (modulate);
+                \draw [arrow] (modulate) -- (setd);
+                \draw [arrow] (setd) -- (choosepair);
+                \draw [arrow] (choosepair) -- (scaleone);
+                \draw [arrow] (scaleone) -- (dumscaleone.center) --
+                (dumstart.center) -- (addpair);
+                \draw [arrow] (addpair) -- (tryestimate1);
+                \draw [arrow] (tryestimate1) -- (tryestimate2);
+                \draw [arrow] (tryestimate2) -- (sumerrs);
+                \draw [arrow] (sumerrs) -- (incd);
+
+                \draw [arrow] (incd) -- (dum2.east) -- 
+                    (dum1.east) -- (choosepair);
+                %\node [emptybox,text width=4cm,minimum width=3cm,left = of dum2,
+                %align = flush right]
+                %{If $d < D$.};
+
+                \draw [arrow] (incd) -- (dum3.center) -- 
+                (dum4.center) -- 
+                 (dum5.center) -- (setd);
+%            \end{scope}
+    \end{tikzpicture}
+    \end{minipage}
+    \begin{minipage}[r]{0.3\columnwidth}
+        \caption{The \textbf{evaluation procedure for 2-component
+        signals}.\label{fig:2cevalflowchart}
+We synthesized signals using
+Eq.~\ref{eq:polyphaseexpmix} with $P=2$, $Q=2$ and parameters chosen from the
+        \textbf{uniform distributions specified in \cite{betser2009sinusoidal}}.
+        No noise was added to the mixture. We then evaluated
+the parameter estimation accuracy at \textbf{various differences between local maxima in
+        the mixture's power-spectrum}.}
+    \end{minipage}
+\end{figure}
+\end{center}
+\end{tcolorbox}
+
+\bibliographystyle{IEEEbib}
+%\nocite{*}
+%\bibliography{dafx-poster} % requires file DAFx17_tmpl.bib
+\bibliography{paper}
+\end{multicols}
+
+\end{document}
+

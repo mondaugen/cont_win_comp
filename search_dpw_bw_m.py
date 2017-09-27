@@ -179,4 +179,4 @@ print "w_aprx 3db bandwidth: %g" % (k_opt_w_aprx,)
 # save coefficients to file
 np.savetxt('/tmp/prolate_approx_W=%1.3f_M=%d.txt' % (w_close,M_w_opt),a_w)
 
-plt.show()
+#plt.show()
